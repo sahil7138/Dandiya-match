@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-outfit: 'Outfit', sans-serif;
+}
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  
+  /* Festive palette */
+  --color-festive-burgundy: #580a22;
+  --color-festive-red: #c1121f;
+  --color-festive-orange: #f77f00;
+  --color-festive-gold: #ffb703;
+  --color-festive-cream: #fdf0d5;
+}
+
+@layer base {
+  :root {
+    --background: 44 80% 95%; /* Cream */
+    --foreground: 337 80% 15%; /* Deep Burgundy */
+
+    --card: 44 70% 98%;
+    --card-foreground: 337 80% 15%;
+
+    --popover: 44 70% 98%;
+    --popover-foreground: 337 80% 15%;
+
+    --primary: 349 83% 41%; /* Festive Red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 100% 48%; /* Festive Orange */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 44 40% 90%;
+    --muted-foreground: 337 40% 40%;
+
+    --accent: 43 100% 51%; /* Festive Gold */
+    --accent-foreground: 337 80% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 44 40% 85%;
+    --input: 44 40% 85%;
+    --ring: 349 83% 41%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 337 80% 10%; /* Very Deep Burgundy */
+    --foreground: 44 80% 95%; /* Cream */
+
+    --card: 337 60% 15%;
+    --card-foreground: 44 80% 95%;
+
+    --popover: 337 60% 15%;
+    --popover-foreground: 44 80% 95%;
+
+    --primary: 43 100% 51%; /* Festive Gold */
+    --primary-foreground: 337 80% 10%;
+
+    --secondary: 30 100% 48%; /* Festive Orange */
+    --secondary-foreground: 337 80% 10%;
+
+    --muted: 337 40% 20%;
+    --muted-foreground: 44 40% 70%;
+
+    --accent: 349 83% 41%; /* Festive Red */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 337 40% 25%;
+    --input: 337 40% 25%;
+    --ring: 43 100% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image: radial-gradient(circle at top right, rgba(255,183,3,0.1), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(193,18,31,0.1), transparent 40%);
+    background-attachment: fixed;
+  }
+}

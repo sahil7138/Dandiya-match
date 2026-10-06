@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  SUPER_ADMIN
+  ADMIN
+  EVENT_MANAGER
+}
+
+enum PassTypeEnum {
+  SINGLE
+  COUPLE
+  GROUP
+  GANG
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum MatchStatus {
+  PENDING
+  LOCKED
+  REVEALED
+  CANCELLED
+}
+
+enum AccountStatus {
+  ACTIVE
+  BLOCKED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  phone         String    @unique
+  email         String?   @unique
+  passwordHash  String?
+  role          Role      @default(USER)
+  status        AccountStatus @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  registration  Registration?
+  matchProfile  MatchProfile?
+  
+  matchesAsA    Match[]   @relation("ParticipantA")
+  matchesAsB    Match[]   @relation("ParticipantB")
+  
+  paymentsVerified Payment[] @relation("VerifiedBy")
+}
+
+model AdminUser {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Registration {
+  id                  String       @id @default(cuid())
+  userId              String       @unique
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gbnNumber           String       @unique
+  passType            PassTypeEnum
+  paymentStatus       PaymentStatus @default(PENDING)
+  matchmakingOptIn    Boolean       @default(false)
+  partnerName         String?       // For COUPLE
+  partnerPhone        String?       // For COUPLE
+  groupMembers        Json?         // For GROUP [{name, phone}]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  payment             Payment?
+}
+
+model Payment {
+  id                   String        @id @default(cuid())
+  registrationId       String        @unique
+  registration         Registration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  amount               Float
+  paymentScreenshotUrl String
+  status               PaymentStatus @default(PENDING)
+  rejectionReason      String?
+  verifiedById         String?
+  verifiedBy           User?         @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  verifiedAt           DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+}
+
+model MatchProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ageGroup        String
+  experience      String
+  vibe            String
+  gender          String?
+  preferredGender String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MatchmakingRound {
+  id             String    @id @default(cuid())
+  name           String
+  matchGenTime   DateTime?
+  revealAt       DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  matches        Match[]
+}
+
+model Match {
+  id             String           @id @default(cuid())
+  roundId        String
+  round          MatchmakingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  participantAId String
+  participantA   User             @relation("ParticipantA", fields: [participantAId], references: [id], onDelete: Cascade)
+  participantBId String
+  participantB   User             @relation("ParticipantB", fields: [participantBId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+  revealAt       DateTime
+  status         MatchStatus      @default(PENDING)
+  isLocked       Boolean          @default(false)
+  createdBy      String?
+  updatedAt      DateTime         @updatedAt
+  
+  @@unique([roundId, participantAId])
+  @@unique([roundId, participantBId])
+}
+
+model EventSettings {
+  id                   String   @id @default(cuid())
+  eventName            String   @default("DANDIYA MATCH")
+  eventDate            DateTime
+  eventTime            String
+  venue                String
+  eventDescription     String
+  contactNumber        String
+  upiId                String
+  upiRecipient         String
+  qrCodeUrl            String?
+  priceSingle          Float    @default(500)
+  priceCouple          Float    @default(900)
+  priceGroup           Float    @default(1600)
+  priceGang            Float    @default(2799)
+  registrationOpen     Boolean  @default(true)
+  matchPoolOpen        Boolean  @default(true)
+  matchGenerationTime  DateTime?
+  matchRevealTime      DateTime?
+  heroBannerUrl        String?
+  eventLogoUrl         String?
+  termsUrl             String?
+  privacyPolicyUrl     String?
+  matchmakingRulesUrl  String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+}
