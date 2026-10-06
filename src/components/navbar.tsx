@@ -13,6 +13,7 @@ export function Navbar() {
     { name: "Experience", href: "/#experience" },
     { name: "Passes", href: "/#passes" },
     { name: "Matchmaking", href: "/#matchmaking" },
+    { name: "Partners", href: "/#partners" },
     { name: "Rules", href: "/rules" },
     { name: "Enquiries", href: "/#enquiries" },
   ]
@@ -34,7 +35,7 @@ export function Navbar() {
                 2026
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Navratri • Pune</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">By EventWale • Tech by Webwork</p>
           </div>
         </Link>
 

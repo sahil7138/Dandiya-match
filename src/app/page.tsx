@@ -603,6 +603,117 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Partners & Organizers Section */}
+      <section id="partners" className="w-full max-w-5xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-pill border border-white/10 text-xs font-semibold text-[#ffb800] uppercase tracking-widest mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-primary" /> CREATIVE & TECH FORCE
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-black font-outfit text-white mb-2">
+            Organizers & Partners
+          </h2>
+          <p className="text-zinc-400 text-sm max-w-xl mx-auto">
+            Powered by industry-leading event curation and next-generation software engineering.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* EventWale - Organizer */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="glass-card rounded-3xl p-8 border border-primary/30 relative overflow-hidden flex flex-col justify-between group"
+          >
+            <div className="absolute top-0 right-0 w-36 h-36 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-0" />
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-gradient-to-r from-primary to-[#ffb800] text-black">
+                  OFFICIAL ORGANIZER
+                </span>
+                <span className="text-xs text-zinc-500 font-mono">EST. PUNE</span>
+              </div>
+
+              {/* Logo / Brand Display */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-16 px-4 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center">
+                  <img
+                    src="/partners/eventwale.svg"
+                    alt="EventWale"
+                    className="h-9 w-auto object-contain"
+                    onError={(e) => {
+                      // Fallback if image fails
+                      (e.target as HTMLElement).style.display = "none"
+                    }}
+                  />
+                  <span className="font-extrabold text-2xl font-outfit text-white tracking-tight ml-2">
+                    EventWale
+                  </span>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold font-outfit text-white mb-2">
+                EventWale
+              </h3>
+              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                Curating premier cultural, festive, and live music experiences across Pune. Bringing luxury crowd curation, top-tier artists, and unforgettable festive energy to Navratri 2026.
+              </p>
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
+              <span>Event Curation & Production</span>
+              <span className="text-[#ffb800] font-semibold">★ Main Organizer</span>
+            </div>
+          </motion.div>
+
+          {/* Webwork Studios LLP - Technology Partner */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="glass-card rounded-3xl p-8 border border-[#8b5cf6]/30 relative overflow-hidden flex flex-col justify-between group"
+          >
+            <div className="absolute top-0 right-0 w-36 h-36 bg-[#8b5cf6]/10 rounded-full blur-3xl pointer-events-none -z-0" />
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-gradient-to-r from-[#8b5cf6] to-cyan-400 text-white">
+                  TECHNOLOGY PARTNER
+                </span>
+                <span className="text-xs text-zinc-500 font-mono">TECH & PRODUCT</span>
+              </div>
+
+              {/* Logo / Brand Display */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-16 px-4 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center">
+                  <img
+                    src="/partners/webwork.svg"
+                    alt="Webwork Studios LLP"
+                    className="h-8 w-auto object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none"
+                    }}
+                  />
+                  <div className="ml-2 flex items-baseline gap-1">
+                    <span className="font-extrabold text-xl font-outfit text-white tracking-tight">
+                      webwork studios
+                    </span>
+                    <span className="font-mono text-xs font-bold text-cyan-400">LLP</span>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold font-outfit text-white mb-2">
+                Webwork Studios LLP
+              </h3>
+              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                Engineering high-performance web applications, digital pass verification, and the proprietary AI matchmaking algorithm powering the Dandiya Match experience.
+              </p>
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
+              <span>Web Architecture & Algorithmic Match</span>
+              <span className="text-cyan-400 font-semibold">★ Technology Partner</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* FAQs Section */}
       <section className="w-full max-w-4xl mx-auto px-4 py-16">
         <div className="text-center mb-12">

@@ -116,9 +116,48 @@ export function Footer() {
 
         </div>
 
+        {/* Partners Showcase Bar */}
+        <div className="py-8 my-8 border-y border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* EventWale */}
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Organized By:</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-primary to-[#ffb800] flex items-center justify-center text-[10px] font-black text-black">
+                  EW
+                </div>
+                <span className="font-extrabold text-sm text-white font-outfit tracking-wide">
+                  EventWale
+                </span>
+              </div>
+            </div>
+
+            <div className="hidden sm:block w-[1px] h-6 bg-white/10" />
+
+            {/* Webwork Studios LLP */}
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Technology Partner:</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#8b5cf6] to-cyan-400 flex items-center justify-center text-[10px] font-black text-white">
+                  WS
+                </div>
+                <span className="font-extrabold text-sm text-white font-outfit tracking-wide">
+                  Webwork Studios LLP
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <span className="text-[11px] text-zinc-400">
+              Official Matchmaking Platform & Ticketing
+            </span>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <p>© 2026 GENZ BLING NAVRATRI. All rights reserved.</p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+          <p>© 2026 GENZ BLING NAVRATRI. Organized by EventWale • Tech by Webwork Studios LLP.</p>
           <p className="flex items-center gap-1.5 text-zinc-400">
             Designed for the ultimate festive energy <Sparkles className="w-3.5 h-3.5 text-[#ffb800]" />
           </p>
