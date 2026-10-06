@@ -25,13 +25,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const SidebarContent = () => (
     <>
-      <div className="p-6 border-b flex items-center gap-2">
-        <div className="bg-primary/10 p-2 rounded-lg">
-          <Dices className="h-6 w-6 text-primary" />
+      <div className="p-6 border-b flex items-center gap-2.5">
+        <div className="bg-gradient-to-br from-primary to-[#ffb800] p-2 rounded-xl text-black">
+          <Dices className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-foreground leading-none">Dandiya Match</h2>
-          <span className="text-xs text-muted-foreground">Admin Portal</span>
+          <h2 className="text-base font-extrabold text-foreground leading-none font-outfit">GENZ BLING &apos;26</h2>
+          <span className="text-[10px] uppercase font-mono text-muted-foreground tracking-wider">Admin Control</span>
         </div>
       </div>
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

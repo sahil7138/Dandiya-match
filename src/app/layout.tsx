@@ -3,8 +3,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Dandiya Match | Event Registration",
-  description: "One Night. One Random Partner. One Dandiya Memory.",
+  title: "GENZ BLING NAVRATRI 2026 | Garba, Dandiya & Matchmaking",
+  description: "Pune's most hyped Navratri festival on 17th October 2026 at Noupark Turf, Narhe. Garba, Dandiya, Live Music, DJ and secret 24-hour partner matchmaking.",
 };
 
 export default function RootLayout({

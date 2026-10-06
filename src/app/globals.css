@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --font-inter: 'Inter', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-outfit: 'Outfit', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
 }
 
 @theme {
@@ -33,75 +34,78 @@
 
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
-  
-  /* Festive palette */
-  --color-festive-burgundy: #580a22;
-  --color-festive-red: #c1121f;
-  --color-festive-orange: #f77f00;
-  --color-festive-gold: #ffb703;
-  --color-festive-cream: #fdf0d5;
+
+  /* GenZ Bling Palette */
+  --color-bling-gold: #ffb800;
+  --color-bling-pink: #ff2a7a;
+  --color-bling-violet: #8b5cf6;
+  --color-bling-orange: #ff6b00;
+  --color-bling-teal: #06b6d4;
+  --color-dark-obsidian: #09080e;
+  --color-dark-surface: #12101c;
+  --color-dark-elevated: #1a1728;
 }
 
 @layer base {
   :root {
-    --background: 44 80% 95%; /* Cream */
-    --foreground: 337 80% 15%; /* Deep Burgundy */
+    --background: 260 25% 6%; /* #0c0a12 deep obsidian */
+    --foreground: 210 40% 98%;
 
-    --card: 44 70% 98%;
-    --card-foreground: 337 80% 15%;
+    --card: 260 22% 10%; /* #141120 */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 44 70% 98%;
-    --popover-foreground: 337 80% 15%;
+    --popover: 260 22% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 349 83% 41%; /* Festive Red */
+    --primary: 337 100% 58%; /* #ff2a7a Neon Festive Pink */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 100% 48%; /* Festive Orange */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 43 100% 50%; /* #ffb800 Radiant Bling Gold */
+    --secondary-foreground: 260 25% 6%;
 
-    --muted: 44 40% 90%;
-    --muted-foreground: 337 40% 40%;
+    --muted: 260 16% 16%;
+    --muted-foreground: 250 15% 65%;
 
-    --accent: 43 100% 51%; /* Festive Gold */
-    --accent-foreground: 337 80% 15%;
+    --accent: 265 89% 66%; /* #8b5cf6 Electric Violet */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 44 40% 85%;
-    --input: 44 40% 85%;
-    --ring: 349 83% 41%;
-    --radius: 0.75rem;
+    --border: 260 20% 18%;
+    --input: 260 20% 18%;
+    --ring: 337 100% 58%;
+    --radius: 1rem;
   }
 
   .dark {
-    --background: 337 80% 10%; /* Very Deep Burgundy */
-    --foreground: 44 80% 95%; /* Cream */
+    --background: 260 25% 6%;
+    --foreground: 210 40% 98%;
 
-    --card: 337 60% 15%;
-    --card-foreground: 44 80% 95%;
+    --card: 260 22% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 337 60% 15%;
-    --popover-foreground: 44 80% 95%;
+    --popover: 260 22% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 43 100% 51%; /* Festive Gold */
-    --primary-foreground: 337 80% 10%;
+    --primary: 337 100% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 100% 48%; /* Festive Orange */
-    --secondary-foreground: 337 80% 10%;
+    --secondary: 43 100% 50%;
+    --secondary-foreground: 260 25% 6%;
 
-    --muted: 337 40% 20%;
-    --muted-foreground: 44 40% 70%;
+    --muted: 260 16% 16%;
+    --muted-foreground: 250 15% 65%;
 
-    --accent: 349 83% 41%; /* Festive Red */
+    --accent: 265 89% 66%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 337 40% 25%;
-    --input: 337 40% 25%;
-    --ring: 43 100% 51%;
+    --border: 260 20% 18%;
+    --input: 260 20% 18%;
+    --ring: 337 100% 58%;
   }
 }
 
@@ -110,9 +114,92 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    background-image: radial-gradient(circle at top right, rgba(255,183,3,0.1), transparent 40%),
-                      radial-gradient(circle at bottom left, rgba(193,18,31,0.1), transparent 40%);
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    background-color: #09080e;
+    background-image: 
+      radial-gradient(circle at 15% 10%, rgba(255, 42, 122, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 50% 60%, rgba(255, 184, 0, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 90%, rgba(255, 42, 122, 0.1) 0%, transparent 45%);
     background-attachment: fixed;
   }
+}
+
+/* Glassmorphism & Bling utilities */
+.glass-card {
+  background: rgba(22, 18, 36, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-hover:hover {
+  background: rgba(28, 23, 46, 0.85);
+  border-color: rgba(255, 42, 122, 0.4);
+  box-shadow: 0 12px 40px -10px rgba(255, 42, 122, 0.25), 0 0 20px rgba(139, 92, 246, 0.15);
+  transform: translateY(-4px);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glow-pink {
+  box-shadow: 0 0 35px rgba(255, 42, 122, 0.35);
+}
+
+.glow-gold {
+  box-shadow: 0 0 35px rgba(255, 184, 0, 0.35);
+}
+
+.glow-violet {
+  box-shadow: 0 0 35px rgba(139, 92, 246, 0.35);
+}
+
+.text-gradient-bling {
+  background: linear-gradient(135deg, #ffffff 0%, #ffe0ec 40%, #ff8cb6 70%, #ffb800 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-fire {
+  background: linear-gradient(135deg, #ff2a7a 0%, #ff6b00 50%, #ffb800 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fff3c4 0%, #ffb800 50%, #ff8000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.neon-border-pulse {
+  position: relative;
+}
+.neon-border-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(90deg, #ff2a7a, #8b5cf6, #ffb800, #ff2a7a);
+  background-size: 300% 300%;
+  animation: borderRotate 6s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes borderRotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

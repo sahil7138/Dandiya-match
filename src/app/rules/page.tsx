@@ -1,66 +1,88 @@
-import { Card } from "@/components/ui/card"
-import Link from "next/link"
+"use client"
+
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { Sparkles, ShieldCheck, Heart, Lock, AlertTriangle, Users } from "lucide-react"
 
 export default function RulesPage() {
+  const rules = [
+    {
+      num: "01",
+      title: "Solo Pass Eligibility",
+      desc: "Random partner matching is exclusively open to Solo Pass (₹299) participants who opt-in during registration. Duo and Group entries are already attending with their selected companions.",
+      icon: Users,
+    },
+    {
+      num: "02",
+      title: "AI & Random Algorithmic Pairing",
+      desc: "Matches are generated to balance dance vibes, age brackets, and preferred partner gender. The spirit of the night is celebrating Navratri and meeting someone with great dance energy!",
+      icon: Sparkles,
+    },
+    {
+      num: "03",
+      title: "Strict 24-Hour Locked Reveal",
+      desc: "All matches are kept strictly confidential and locked until 24 hours before the event starts (October 16, 2026, 7:00 PM). The timer unlocks your partner on your attendee dashboard.",
+      icon: Lock,
+    },
+    {
+      num: "04",
+      title: "Privacy & Safe Community",
+      desc: "Phone numbers and personal contact information are NEVER publicly shared. You only see your partner's first name, age group, experience, and vibe. Exchange numbers only with mutual consent at the venue.",
+      icon: ShieldCheck,
+    },
+    {
+      num: "05",
+      title: "Pure Festive Dandiya Experience",
+      desc: "This is a modern Navratri Garba & Dandiya dance event, NOT a dating or matrimony service. Keep conversations fun, respectful, and centered around celebrating festive culture.",
+      icon: Heart,
+    },
+    {
+      num: "06",
+      title: "Respect & Zero Harassment Policy",
+      desc: "We have strict on-ground security and turf staff. Any disrespectful behavior, harassment, or boundary-crossing will result in immediate escort from the venue without refund.",
+      icon: AlertTriangle,
+    },
+  ]
+
   return (
-    <div className="min-h-screen flex flex-col items-center overflow-x-hidden pt-12 pb-24 px-4">
-      <div className="absolute inset-0 -z-10 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
-      
-      <div className="w-full max-w-3xl mb-8">
-        <Link href="/" className="text-sm text-muted-foreground hover:text-primary">← Back to Home</Link>
-      </div>
+    <div className="min-h-screen flex flex-col bg-[#09080e] text-white">
+      <Navbar />
 
-      <div className="w-full max-w-3xl space-y-8">
-        <h1 className="text-4xl font-bold font-outfit text-primary">Matchmaking Rules</h1>
-        <p className="text-xl text-muted-foreground">Please read these rules carefully before participating in the Random Dandiya Partner matchmaking.</p>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 md:py-16">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-pill border border-white/10 text-xs font-bold text-[#ffb800] uppercase tracking-wider mb-3">
+            <ShieldCheck className="w-3.5 h-3.5 text-primary" /> COMMUNITY GUIDELINES
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-black font-outfit text-white mb-3">
+            Matchmaking & Event Rules
+          </h1>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-lg mx-auto">
+            Everything you need to know about our fair pairing algorithm, privacy protocols, and code of conduct for GenZ Bling Navratri 2026.
+          </p>
+        </div>
 
-        <Card className="p-8 space-y-6 bg-card border-border">
-          <ul className="space-y-6 list-none p-0 m-0">
-            <li className="flex gap-4">
-              <span className="text-2xl font-bold text-primary opacity-50 font-outfit">01</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {rules.map((rule, idx) => (
+            <div
+              key={idx}
+              className="glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between"
+            >
               <div>
-                <h3 className="text-xl font-bold mb-1">Eligibility</h3>
-                <p className="text-muted-foreground">Random partner matching is available ONLY for eligible Single Ticket participants. Couple Entry and Group Entry cannot participate in Random Partner matching.</p>
+                <div className="flex justify-between items-start mb-3">
+                  <span className="text-xs font-mono font-black text-primary px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20">
+                    RULE {rule.num}
+                  </span>
+                  <rule.icon className="w-5 h-5 text-[#ffb800]" />
+                </div>
+                <h3 className="text-lg font-bold font-outfit text-white mb-2">{rule.title}</h3>
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{rule.desc}</p>
               </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="text-2xl font-bold text-primary opacity-50 font-outfit">02</span>
-              <div>
-                <h3 className="text-xl font-bold mb-1">It's Truly Random</h3>
-                <p className="text-muted-foreground">Matching is entirely random. While we ask for age, experience, and vibe to potentially balance the pool, you are not guaranteed a partner that matches those exact preferences. The spirit of the event is to meet someone new and have fun!</p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="text-2xl font-bold text-primary opacity-50 font-outfit">03</span>
-              <div>
-                <h3 className="text-xl font-bold mb-1">The 24-Hour Reveal</h3>
-                <p className="text-muted-foreground">Match results remain hidden until the configured reveal time (typically 24 hours before the event starts). You cannot see your partner before the countdown ends.</p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="text-2xl font-bold text-primary opacity-50 font-outfit">04</span>
-              <div>
-                <h3 className="text-xl font-bold mb-1">Privacy First</h3>
-                <p className="text-muted-foreground">Partner contact information (phone number, email) is NOT automatically shared. You will only see your partner's name and basic Dandiya preferences. You must meet up at the venue or use mutual consent to share contact info.</p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="text-2xl font-bold text-primary opacity-50 font-outfit">05</span>
-              <div>
-                <h3 className="text-xl font-bold mb-1">Not a Dating App</h3>
-                <p className="text-muted-foreground">Matchmaking is for the Dandiya event experience and is NOT a dating or matrimonial service. Keep it respectful, fun, and purely about the dance!</p>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="text-2xl font-bold text-primary opacity-50 font-outfit">06</span>
-              <div>
-                <h3 className="text-xl font-bold mb-1">Respect & Conduct</h3>
-                <p className="text-muted-foreground">Participants must behave respectfully at all times. Event admins reserve the right to remove or block participants who violate event rules or make others uncomfortable.</p>
-              </div>
-            </li>
-          </ul>
-        </Card>
-      </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }

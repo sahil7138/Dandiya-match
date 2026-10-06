@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -8,17 +9,20 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Card } from "@/components/ui/card"
 import { PassTypeEnum } from "@prisma/client"
 import { submitRegistration } from "../actions/register"
 import { toast } from "sonner"
-import { CheckCircle2, ChevronRight, Loader2, UploadCloud } from "lucide-react"
+import { 
+  CheckCircle2, ChevronRight, ChevronLeft, Loader2, UploadCloud, Sparkles, 
+  Ticket, Users, User, Heart, ShieldCheck, Copy, Check, QrCode, ArrowRight 
+} from "lucide-react"
 import Link from "next/link"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
 
 const schema = z.object({
-  name: z.string().min(2, "Name is required"),
-  phone: z.string().regex(/^[0-9]{10}$/, "Must be exactly 10 digits"),
+  name: z.string().min(2, "Full name is required"),
+  phone: z.string().regex(/^[0-9]{10}$/, "Phone number must be exactly 10 digits"),
   passType: z.nativeEnum(PassTypeEnum),
   matchmakingOptIn: z.boolean(),
   partnerName: z.string().optional(),
@@ -39,382 +43,736 @@ const schema = z.object({
   vibe: z.string().optional(),
 })
 
-export default function RegisterPage() {
+type FormData = z.infer<typeof schema>
+
+function RegisterForm() {
+  const searchParams = useSearchParams()
+  const initialPassParam = searchParams.get("pass") as PassTypeEnum | null
+
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successId, setSuccessId] = useState<string | null>(null)
   const [screenshotUrl, setScreenshotUrl] = useState("")
+  const [copiedUpi, setCopiedUpi] = useState(false)
 
-  const form = useForm<z.infer<typeof schema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      passType: PassTypeEnum.SINGLE,
-      matchmakingOptIn: false,
-    }
+      name: "",
+      phone: "",
+      passType: (initialPassParam && Object.values(PassTypeEnum).includes(initialPassParam)) 
+        ? initialPassParam 
+        : PassTypeEnum.SINGLE,
+      matchmakingOptIn: true,
+      gender: "Male",
+      preferredGender: "Female",
+      ageGroup: "22-25",
+      experience: "Casual (Can do 2-Taali)",
+      vibe: "Energetic & Fast Beats",
+    },
   })
+
+  useEffect(() => {
+    if (initialPassParam && Object.values(PassTypeEnum).includes(initialPassParam)) {
+      form.setValue("passType", initialPassParam)
+    }
+  }, [initialPassParam, form])
 
   const watchPassType = form.watch("passType")
   const watchOptIn = form.watch("matchmakingOptIn")
 
+  const passPriceMap: Record<PassTypeEnum, { name: string; price: number; badge: string; entry: string }> = {
+    SINGLE: { name: "Solo Pass", price: 299, badge: "🎲 MATCHMAKING ELIGIBLE", entry: "Entry for 1" },
+    COUPLE: { name: "Duo Pass", price: 549, badge: "👯 COUPLE / DUO", entry: "Entry for 2" },
+    GROUP: { name: "Bling Squad", price: 1149, badge: "⚡ SQUAD OF 4", entry: "Entry for 4" },
+    GANG: { name: "Bling Gang", price: 2799, badge: "👑 MEGA CREW (10)", entry: "Entry for 10" },
+  }
+
+  const currentPrice = passPriceMap[watchPassType].price
+
   const handleNext = async () => {
-    let isValid = false
     if (step === 1) {
-      isValid = await form.trigger(["name", "phone", "passType"])
+      const isBasicValid = await form.trigger(["name", "phone", "passType"])
+      if (!isBasicValid) return
+
       if (watchPassType === PassTypeEnum.COUPLE) {
-        isValid = isValid && await form.trigger(["partnerName"])
+        const isCoupleValid = await form.trigger(["partnerName"])
+        if (!isCoupleValid) return
       } else if (watchPassType === PassTypeEnum.GROUP) {
-        isValid = isValid && await form.trigger(["member2", "member3", "member4"])
+        const isGroupValid = await form.trigger(["member2", "member3", "member4"])
+        if (!isGroupValid) return
       } else if (watchPassType === PassTypeEnum.GANG) {
-        isValid = isValid && await form.trigger(["member2", "member3", "member4", "member5", "member6", "member7", "member8", "member9", "member10"])
+        const isGangValid = await form.trigger([
+          "member2", "member3", "member4", "member5", "member6", "member7", "member8", "member9", "member10"
+        ])
+        if (!isGangValid) return
       }
+      setStep(2)
     } else if (step === 2) {
       if (watchPassType === PassTypeEnum.SINGLE && watchOptIn) {
-        isValid = await form.trigger(["gender", "preferredGender", "ageGroup", "experience", "vibe"])
-      } else {
-        isValid = true
+        const isMatchValid = await form.trigger(["gender", "preferredGender", "ageGroup", "experience", "vibe"])
+        if (!isMatchValid) return
       }
+      setStep(3)
     }
-    if (isValid) setStep(step + 1)
   }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // In a real app, upload to S3/Cloudinary. Here we use a fake URL.
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size must be under 5MB")
+        return
+      }
       const reader = new FileReader()
       reader.onloadend = () => {
         setScreenshotUrl(reader.result as string)
-        toast.success("Screenshot uploaded successfully!")
+        toast.success("Payment screenshot uploaded successfully!")
       }
       reader.readAsDataURL(file)
     }
   }
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText("7709468117@upi")
+    setCopiedUpi(true)
+    toast.success("UPI ID copied to clipboard!")
+    setTimeout(() => setCopiedUpi(false), 2000)
+  }
+
+  const onSubmit = async (data: FormData) => {
     if (!screenshotUrl) {
-      toast.error("Please upload your payment screenshot")
+      toast.error("Please upload your UPI payment screenshot to complete registration.")
       return
     }
-    
+
     setIsSubmitting(true)
-    
-    let amount = 299
-    if (data.passType === PassTypeEnum.COUPLE) amount = 549
-    if (data.passType === PassTypeEnum.GROUP) amount = 1149
-    if (data.passType === PassTypeEnum.GANG) amount = 2799
-    
     const res = await submitRegistration({
       ...data,
       paymentScreenshotUrl: screenshotUrl,
-      amount,
+      amount: currentPrice,
     })
-    
     setIsSubmitting(false)
-    
+
     if (res.success && res.registrationId) {
       setSuccessId(res.registrationId)
+      toast.success("Registration submitted successfully!")
     } else {
-      toast.error(res.error)
+      toast.error(res.error || "Failed to submit registration")
     }
   }
 
   if (successId) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md w-full p-8 text-center flex flex-col items-center space-y-6 border-primary/20 bg-card">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-green-500">
-            <CheckCircle2 size={80} />
-          </motion.div>
-          <h2 className="text-3xl font-bold font-outfit text-primary">You're In! 🎉</h2>
-          <p className="text-muted-foreground">Your registration has been received.</p>
-          <div className="bg-secondary/10 w-full p-4 rounded-xl border border-secondary/20">
-            <p className="font-mono text-sm text-muted-foreground">Registration ID</p>
-            <p className="font-bold">{successId.slice(-6).toUpperCase()}</p>
-          </div>
-          {watchPassType === PassTypeEnum.SINGLE && watchOptIn && (
-            <div className="bg-primary/10 text-primary p-4 rounded-xl font-medium border border-primary/20">
-              You're officially in the Random Dandiya Partner pool. 🎲
+      <div className="min-h-screen flex flex-col bg-[#09080e] text-white">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4 py-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-lg glass-card rounded-[2.5rem] p-8 md:p-10 border border-primary/40 shadow-[0_0_60px_rgba(255,42,122,0.25)] text-center relative overflow-hidden"
+          >
+            <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/15 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 mb-6">
+              <CheckCircle2 className="w-10 h-10" />
             </div>
-          )}
-          <Link href="/login" className="w-full">
-            <Button className="w-full">GO TO DASHBOARD</Button>
-          </Link>
-        </Card>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#ffb800]" /> OFFICIAL PASS CONFIRMED
+            </div>
+
+            <h2 className="text-3xl font-black font-outfit text-white mb-2">You&apos;re In! 🎉</h2>
+            <p className="text-zinc-400 text-sm mb-6">
+              Your registration for <strong className="text-white">GENZ BLING NAVRATRI 2026</strong> has been received and payment is pending quick verification.
+            </p>
+
+            <div className="bg-black/50 p-5 rounded-2xl border border-white/10 mb-6 text-left space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-zinc-400">Pass Type:</span>
+                <span className="font-bold text-white">{passPriceMap[watchPassType].name}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-zinc-400">Amount Paid:</span>
+                <span className="font-bold text-[#ffb800]">₹{currentPrice}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-zinc-400">Verification Status:</span>
+                <span className="font-bold text-yellow-400">Pending Admin Review</span>
+              </div>
+              {watchPassType === PassTypeEnum.SINGLE && watchOptIn && (
+                <div className="pt-2 border-t border-white/5 flex items-center gap-2 text-xs text-primary font-semibold">
+                  <span>🎲 Secret Dandiya Match Pool:</span>
+                  <span className="text-emerald-400 font-bold">Enrolled!</span>
+                </div>
+              )}
+            </div>
+
+            <Link href="/login" className="w-full block">
+              <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-lg shadow-primary/30">
+                Log In to Attendee Dashboard <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+        <Footer />
       </div>
     )
   }
 
-  const prices = {
-    SINGLE: 299,
-    COUPLE: 549,
-    GROUP: 1149,
-    GANG: 2799
-  }
-
   return (
-    <div className="min-h-screen pb-24 pt-8 px-4 flex flex-col items-center">
-      <div className="w-full max-w-2xl mb-8">
-        <Link href="/" className="text-sm text-muted-foreground hover:text-primary">← Back to Home</Link>
-      </div>
+    <div className="min-h-screen flex flex-col bg-[#09080e] text-white">
+      <Navbar />
 
-      <div className="w-full max-w-2xl bg-card rounded-t-3xl border-t-8 border-t-primary p-8 shadow-sm mb-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10 text-6xl">✨</div>
-        <h1 className="text-4xl font-bold font-outfit text-primary mb-2">GENZ BLING NAVRATRI 2026</h1>
-        <p className="text-xl mb-4 font-light text-foreground">Ready to slay this Navratri? 💃🕺</p>
-        <div className="text-muted-foreground space-y-2 mt-6 border-l-2 border-primary/30 pl-4">
-          <p>📅 17 October 2026</p>
-          <p>⏰ 7:00 PM Onwards</p>
-          <p>📍 Noupark Turf, Near Premia Society, Narhe</p>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 md:py-16">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill border border-white/10 text-xs font-bold text-[#ffb800] uppercase tracking-wider mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-primary" /> GENZ BLING 2026 REGISTRATION
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-black font-outfit text-white mb-3">
+            Secure Your Navratri Pass
+          </h1>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-lg mx-auto">
+            17th October 2026 • Noupark Turf, Narhe, Pune
+          </p>
         </div>
-      </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-2xl space-y-6">
-        
-        {step === 1 && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <Card className="p-6 space-y-4 shadow-sm border-border">
-              <div className="space-y-2">
-                <Label className="text-lg">What's your good name? 👤 <span className="text-red-500">*</span></Label>
-                <Input {...form.register("name")} placeholder="Your Full Name" className="h-12 text-lg bg-background" />
-                {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+        {/* Multi-step progress bar */}
+        <div className="flex items-center justify-center gap-3 mb-10 max-w-md mx-auto">
+          {[
+            { num: 1, label: "Pass & Info" },
+            { num: 2, label: "Vibe / Match" },
+            { num: 3, label: "Payment" },
+          ].map((s) => (
+            <div key={s.num} className="flex-1 flex items-center gap-2">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
+                  step === s.num
+                    ? "bg-primary text-white shadow-lg shadow-primary/40 ring-2 ring-primary/40"
+                    : step > s.num
+                    ? "bg-emerald-500 text-black"
+                    : "bg-white/10 text-zinc-400"
+                }`}
+              >
+                {step > s.num ? <Check className="w-4 h-4" /> : s.num}
               </div>
-            </Card>
+              <span className={`text-xs font-medium hidden sm:inline ${step === s.num ? "text-white font-bold" : "text-zinc-500"}`}>
+                {s.label}
+              </span>
+              {s.num < 3 && <div className="flex-1 h-[2px] bg-white/10" />}
+            </div>
+          ))}
+        </div>
 
-            <Card className="p-6 space-y-4 shadow-sm border-border">
-              <div className="space-y-2">
-                <Label className="text-lg">Drop your digits 📱 <span className="text-red-500">*</span></Label>
-                <div className="flex">
-                  <div className="flex items-center justify-center px-4 bg-muted border border-r-0 border-border rounded-l-md font-medium">+91</div>
-                  <Input {...form.register("phone")} placeholder="9876543210" maxLength={10} className="h-12 text-lg bg-background rounded-l-none" />
+        {/* Step Form Container */}
+        <div className="glass-card rounded-[2rem] p-6 sm:p-10 border border-white/10 shadow-2xl relative">
+          
+          {/* STEP 1: Pass & Personal Info */}
+          {step === 1 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+              {/* Pass Tier Picker */}
+              <div>
+                <Label className="text-sm font-bold text-white mb-3 block">
+                  Select Your Entry Pass
+                </Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {(Object.keys(passPriceMap) as PassTypeEnum[]).map((type) => {
+                    const item = passPriceMap[type]
+                    const isSelected = watchPassType === type
+                    return (
+                      <div
+                        key={type}
+                        onClick={() => form.setValue("passType", type)}
+                        className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                          isSelected
+                            ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(255,42,122,0.2)] ring-1 ring-primary"
+                            : "bg-white/[0.02] border-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <span className="text-[10px] font-black uppercase text-[#ffb800] tracking-wider block">
+                              {item.badge}
+                            </span>
+                            <h4 className="font-bold text-base text-white">{item.name}</h4>
+                            <p className="text-xs text-zinc-400">{item.entry}</p>
+                          </div>
+                          <span className="text-xl font-black font-outfit text-white">
+                            ₹{item.price}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-                {form.formState.errors.phone && <p className="text-red-500 text-sm">{form.formState.errors.phone.message}</p>}
               </div>
-            </Card>
 
-            <Card className="p-6 space-y-4 shadow-sm border-border">
-              <Label className="text-lg">Choose your vibe 🎟️ <span className="text-red-500">*</span></Label>
-              <RadioGroup value={watchPassType} onValueChange={(v) => form.setValue("passType", v as PassTypeEnum)} className="gap-4 mt-4">
-                {[
-                  { id: PassTypeEnum.SINGLE, label: "Solo Pass", sub: "Entry for 1", price: prices.SINGLE },
-                  { id: PassTypeEnum.COUPLE, label: "Duo Pass", sub: "Entry for 2", price: prices.COUPLE },
-                  { id: PassTypeEnum.GROUP, label: "Bling Squad Pass", sub: "Entry for 4", price: prices.GROUP },
-                  { id: PassTypeEnum.GANG, label: "Bling Gang Pass", sub: "Entry for 10", price: prices.GANG }
-                ].map((pt) => (
-                  <div key={pt.id} className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${watchPassType === pt.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value={pt.id} id={pt.id} />
-                      <Label htmlFor={pt.id} className="font-bold text-lg cursor-pointer flex flex-col">
-                        {pt.label}
-                        <span className="text-sm font-normal text-muted-foreground">{pt.sub}</span>
-                      </Label>
-                    </div>
-                    <div className="font-bold text-lg text-primary">₹{pt.price}</div>
+              {/* Primary Attendee Details */}
+              <div className="space-y-4 pt-4 border-t border-white/10">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#ffb800]">
+                  Primary Attendee Details
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-xs text-zinc-300">Full Name *</Label>
+                    <Input
+                      id="name"
+                      placeholder="e.g. Aryan Sharma"
+                      {...form.register("name")}
+                      className="bg-black/40 border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-primary"
+                    />
+                    {form.formState.errors.name && (
+                      <p className="text-xs text-red-400">{form.formState.errors.name.message}</p>
+                    )}
                   </div>
-                ))}
-              </RadioGroup>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-xs text-zinc-300">WhatsApp Phone (10 digits) *</Label>
+                    <div className="flex">
+                      <span className="h-12 px-3.5 flex items-center bg-white/5 border border-r-0 border-white/10 rounded-l-xl text-xs font-bold text-zinc-400">
+                        +91
+                      </span>
+                      <Input
+                        id="phone"
+                        maxLength={10}
+                        placeholder="9876543210"
+                        {...form.register("phone")}
+                        className="bg-black/40 border-white/10 h-12 rounded-l-none rounded-r-xl text-white placeholder:text-zinc-600 focus:border-primary"
+                      />
+                    </div>
+                    {form.formState.errors.phone && (
+                      <p className="text-xs text-red-400">{form.formState.errors.phone.message}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Conditional Couple Partner Inputs */}
               {watchPassType === PassTypeEnum.COUPLE && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="pt-4 space-y-4 border-t mt-4">
-                  <div className="bg-secondary/10 text-secondary-foreground p-3 rounded-lg text-sm mb-4 border border-secondary/20">
-                    You're already registered as a duo, so Random Dandiya Partner matching isn't available for this pass.
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Partner's Name <span className="text-red-500">*</span></Label>
-                    <Input {...form.register("partnerName")} placeholder="Enter their name" />
-                  </div>
-                </motion.div>
-              )}
-
-              {watchPassType === PassTypeEnum.GROUP && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="pt-4 space-y-4 border-t mt-4">
-                  <div className="bg-secondary/10 text-secondary-foreground p-3 rounded-lg text-sm mb-4 border border-secondary/20">
-                    Group entries are not eligible for Random Dandiya Partner matching.
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Member 2 Name <span className="text-red-500">*</span></Label>
-                    <Input {...form.register("member2")} placeholder="Name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Member 3 Name <span className="text-red-500">*</span></Label>
-                    <Input {...form.register("member3")} placeholder="Name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Member 4 Name <span className="text-red-500">*</span></Label>
-                    <Input {...form.register("member4")} placeholder="Name" />
-                  </div>
-                </motion.div>
-              )}
-
-              {watchPassType === PassTypeEnum.GANG && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="pt-4 space-y-4 border-t mt-4">
-                  <div className="bg-secondary/10 text-secondary-foreground p-3 rounded-lg text-sm mb-4 border border-secondary/20">
-                    Bling Gang entries are not eligible for Random Dandiya Partner matching.
-                  </div>
-                  {Array.from({ length: 9 }).map((_, i) => (
-                    <div className="space-y-2" key={i}>
-                      <Label>Member {i + 2} Name <span className="text-red-500">*</span></Label>
-                      <Input {...form.register(`member${i + 2}` as keyof z.infer<typeof schema>)} placeholder="Name" />
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
+                    Duo Partner Details
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-zinc-300">Partner Full Name *</Label>
+                      <Input
+                        placeholder="e.g. Riya Patel"
+                        {...form.register("partnerName")}
+                        className="bg-black/40 border-white/10 h-12 rounded-xl text-white"
+                      />
                     </div>
-                  ))}
-                </motion.div>
-              )}
-            </Card>
-            
-            <Button type="button" onClick={handleNext} className="w-full h-14 text-lg rounded-xl" size="lg">
-              Next Step <ChevronRight className="ml-2" />
-            </Button>
-          </motion.div>
-        )}
-
-        {step === 2 && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            
-            {watchPassType === PassTypeEnum.SINGLE && (
-              <Card className="p-6 space-y-6 shadow-sm border-primary/50 bg-primary/5">
-                <div className="space-y-2">
-                  <Label className="text-xl font-bold text-primary font-outfit">Want to enter the Random Dandiya Partner pool? 🎲</Label>
-                  <p className="text-muted-foreground text-sm">Join the pool to get matched with a random partner for the night!</p>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-zinc-300">Partner Phone (Optional)</Label>
+                      <Input
+                        placeholder="e.g. 9876543211"
+                        maxLength={10}
+                        {...form.register("partnerPhone")}
+                        className="bg-black/40 border-white/10 h-12 rounded-xl text-white"
+                      />
+                    </div>
+                  </div>
                 </div>
-                
-                <RadioGroup 
-                  value={watchOptIn ? "yes" : "no"} 
-                  onValueChange={(v) => form.setValue("matchmakingOptIn", v === "yes")}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <Label htmlFor="opt-yes" className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 cursor-pointer transition-all ${watchOptIn ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
-                    <RadioGroupItem value="yes" id="opt-yes" className="sr-only" />
-                    <span className="text-2xl mb-2">🎲</span>
-                    <span className="font-bold">YES, MATCH ME</span>
-                  </Label>
-                  <Label htmlFor="opt-no" className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 cursor-pointer transition-all ${!watchOptIn ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}>
-                    <RadioGroupItem value="no" id="opt-no" className="sr-only" />
-                    <span className="text-2xl mb-2">💃</span>
-                    <span className="font-bold text-center">NO, I'LL DANCE SOLO</span>
-                  </Label>
-                </RadioGroup>
+              )}
 
-                {watchOptIn && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pt-4">
-                    <div className="space-y-3">
-                      <Label>Your Gender</Label>
-                      <RadioGroup onValueChange={(v) => form.setValue("gender", v)} className="flex flex-wrap gap-2">
-                        {['Male', 'Female', 'Other'].map(gen => (
-                          <Label key={gen} className={`px-4 py-2 rounded-full border cursor-pointer ${form.watch('gender') === gen ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
-                            <RadioGroupItem value={gen} className="sr-only" />
-                            {gen}
-                          </Label>
-                        ))}
-                      </RadioGroup>
+              {/* Conditional Group Squad Inputs */}
+              {watchPassType === PassTypeEnum.GROUP && (
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
+                    Squad Member Names (4 Total)
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <Input
+                      placeholder="Member 2 Name *"
+                      {...form.register("member2")}
+                      className="bg-black/40 border-white/10 h-12 rounded-xl text-white"
+                    />
+                    <Input
+                      placeholder="Member 3 Name *"
+                      {...form.register("member3")}
+                      className="bg-black/40 border-white/10 h-12 rounded-xl text-white"
+                    />
+                    <Input
+                      placeholder="Member 4 Name *"
+                      {...form.register("member4")}
+                      className="bg-black/40 border-white/10 h-12 rounded-xl text-white"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Conditional Mega Gang Inputs */}
+              {watchPassType === PassTypeEnum.GANG && (
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
+                    Gang Member Names (10 Total)
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                      <Input
+                        key={num}
+                        placeholder={`Member ${num} Name *`}
+                        {...form.register(`member${num}` as any)}
+                        className="bg-black/40 border-white/10 h-11 rounded-xl text-white text-xs"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation button */}
+              <div className="pt-6 flex justify-end">
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold"
+                >
+                  Continue to Next Step <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 2: Vibe & Matchmaking */}
+          {step === 2 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+              {watchPassType === PassTypeEnum.SINGLE ? (
+                <>
+                  {/* Matchmaking Opt-In Toggle */}
+                  <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-[#8b5cf6]/10 to-transparent border border-primary/30 flex items-start gap-4">
+                    <div className="p-2.5 rounded-xl bg-primary/20 text-primary shrink-0 mt-0.5">
+                      <Sparkles className="w-6 h-6" />
                     </div>
-                    <div className="space-y-3">
-                      <Label>Preferred Partner Gender</Label>
-                      <RadioGroup onValueChange={(v) => form.setValue("preferredGender", v)} className="flex flex-wrap gap-2">
-                        {['Male', 'Female', 'Anyone'].map(gen => (
-                          <Label key={gen} className={`px-4 py-2 rounded-full border cursor-pointer ${form.watch('preferredGender') === gen ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
-                            <RadioGroupItem value={gen} className="sr-only" />
-                            {gen}
-                          </Label>
-                        ))}
-                      </RadioGroup>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <h3 className="font-bold text-base text-white">Join Secret Dandiya Match Pool</h3>
+                        <input
+                          type="checkbox"
+                          checked={watchOptIn}
+                          onChange={(e) => form.setValue("matchmakingOptIn", e.target.checked)}
+                          className="w-5 h-5 accent-primary rounded cursor-pointer"
+                        />
+                      </div>
+                      <p className="text-xs text-zinc-300 leading-relaxed">
+                        Free with your Solo Pass! Our algorithm pairs you with a random Dandiya partner based on your energy and preferences. Revealed 24 hours prior on your dashboard.
+                      </p>
                     </div>
-                    <div className="space-y-3">
-                      <Label>Age Group</Label>
-                      <RadioGroup onValueChange={(v) => form.setValue("ageGroup", v)} className="flex flex-wrap gap-2">
-                        {['18–20', '21–23', '24–26', '27+'].map(age => (
-                          <Label key={age} className={`px-4 py-2 rounded-full border cursor-pointer ${form.watch('ageGroup') === age ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
-                            <RadioGroupItem value={age} className="sr-only" />
-                            {age}
-                          </Label>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Dandiya Experience</Label>
-                      <RadioGroup onValueChange={(v) => form.setValue("experience", v)} className="flex flex-wrap gap-2">
-                        {['Beginner', 'Intermediate', 'Advanced'].map(exp => (
-                          <Label key={exp} className={`px-4 py-2 rounded-full border cursor-pointer ${form.watch('experience') === exp ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
-                            <RadioGroupItem value={exp} className="sr-only" />
-                            {exp}
-                          </Label>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Your Vibe</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['Energetic 🔥', 'Chill 😎', 'Fun & Goofy 😂', 'Dance Lover 💃', 'Competitive 🕺', 'Just Here for Garba ✨'].map(vibe => (
-                          <Label key={vibe} className={`px-3 py-3 rounded-lg border text-center cursor-pointer text-sm ${form.watch('vibe') === vibe ? 'bg-primary text-primary-foreground' : 'bg-card'}`}>
-                            <input type="radio" value={vibe} onChange={() => form.setValue("vibe", vibe)} checked={form.watch('vibe') === vibe} className="sr-only" />
-                            {vibe}
-                          </Label>
-                        ))}
+                  </div>
+
+                  {watchOptIn && (
+                    <div className="space-y-6 pt-2">
+                      {/* My Gender */}
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-300 mb-2 block">
+                          I Identify As:
+                        </Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {["Male", "Female", "Other"].map((g) => (
+                            <button
+                              key={g}
+                              type="button"
+                              onClick={() => form.setValue("gender", g)}
+                              className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
+                                form.watch("gender") === g
+                                  ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                                  : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
+                              }`}
+                            >
+                              {g}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Preferred Partner Gender (User specifically requested both Male and Female options!) */}
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-300 mb-2 block">
+                          Preferred Partner Gender:
+                        </Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {["Female", "Male", "Any / Open to All"].map((pg) => (
+                            <button
+                              key={pg}
+                              type="button"
+                              onClick={() => form.setValue("preferredGender", pg)}
+                              className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
+                                form.watch("preferredGender") === pg
+                                  ? "bg-[#ffb800] text-black border-[#ffb800] shadow-md shadow-[#ffb800]/20 font-bold"
+                                  : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
+                              }`}
+                            >
+                              {pg}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[11px] text-zinc-500 mt-1.5">
+                          You can match with a male, female, or anyone based on your preference.
+                        </p>
+                      </div>
+
+                      {/* Age Group */}
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-300 mb-2 block">
+                          Your Age Group:
+                        </Label>
+                        <div className="grid grid-cols-4 gap-2.5">
+                          {["18-21", "22-25", "26-30", "30+"].map((age) => (
+                            <button
+                              key={age}
+                              type="button"
+                              onClick={() => form.setValue("ageGroup", age)}
+                              className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                                form.watch("ageGroup") === age
+                                  ? "bg-white text-black border-white font-bold"
+                                  : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
+                              }`}
+                            >
+                              {age}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Dandiya Dance Experience */}
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-300 mb-2 block">
+                          Dandiya / Garba Experience Level:
+                        </Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          {[
+                            { id: "Beginner (Need a teacher!)", label: "🌱 Beginner" },
+                            { id: "Casual (Can do 2-Taali)", label: "💃 Casual Groover" },
+                            { id: "Pro (Dodhiya champion!)", label: "🔥 Dodhiya Pro" },
+                          ].map((exp) => (
+                            <button
+                              key={exp.id}
+                              type="button"
+                              onClick={() => form.setValue("experience", exp.id)}
+                              className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all ${
+                                form.watch("experience") === exp.id
+                                  ? "bg-primary/20 text-white border-primary"
+                                  : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
+                              }`}
+                            >
+                              {exp.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Vibe */}
+                      <div>
+                        <Label className="text-xs font-bold text-zinc-300 mb-2 block">
+                          Your Festival Vibe:
+                        </Label>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {[
+                            "Energetic & Fast Beats",
+                            "Chill & Friendly",
+                            "Instagram Aesthetic & Glam",
+                            "Pure Traditional Garba",
+                          ].map((v) => (
+                            <button
+                              key={v}
+                              type="button"
+                              onClick={() => form.setValue("vibe", v)}
+                              className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all ${
+                                form.watch("vibe") === v
+                                  ? "bg-[#8b5cf6]/20 text-white border-[#8b5cf6]"
+                                  : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
+                              }`}
+                            >
+                              ✨ {v}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </Card>
-            )}
+                  )}
+                </>
+              ) : (
+                <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-3">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-[#ffb800]/20 text-[#ffb800] flex items-center justify-center text-xl">
+                    👥
+                  </div>
+                  <h3 className="font-bold text-lg text-white">Group / Duo Entry Confirmed</h3>
+                  <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+                    You have selected a {passPriceMap[watchPassType].name}. Matchmaking is exclusively designed for solo attendees. You and your crew will receive direct access to the turf!
+                  </p>
+                </div>
+              )}
 
-            <Card className="p-6 space-y-6 shadow-sm border-border">
-              <h3 className="text-2xl font-bold font-outfit text-primary border-b pb-4">Secure the Bag 💸</h3>
+              {/* Navigation buttons */}
+              <div className="pt-6 flex justify-between">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="h-12 px-6 rounded-xl border-white/10 text-zinc-300 hover:bg-white/5"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold"
+                >
+                  Proceed to Payment <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 3: Payment & Verification */}
+          {step === 3 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               
-              <div className="bg-muted p-6 rounded-xl flex flex-col items-center justify-center text-center space-y-4">
-                <div className="w-48 h-48 bg-white p-4 rounded-xl shadow-sm flex items-center justify-center">
-                  {/* Placeholder for QR Code */}
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=dandiyamatch@upi&pn=DandiyaMatch&cu=INR" alt="UPI QR Code" className="w-full h-full object-contain" />
-                </div>
+              {/* Order Summary */}
+              <div className="p-5 rounded-2xl bg-black/50 border border-white/10 flex justify-between items-center">
                 <div>
-                  <p className="font-bold text-lg">UPI ID: dandiyamatch@upi</p>
-                  <p className="text-muted-foreground">Scan to pay with any UPI app</p>
+                  <span className="text-[10px] font-black uppercase text-[#ffb800] tracking-wider block">
+                    {passPriceMap[watchPassType].badge}
+                  </span>
+                  <h3 className="text-lg font-bold text-white">{passPriceMap[watchPassType].name}</h3>
+                  <p className="text-xs text-zinc-400">{passPriceMap[watchPassType].entry}</p>
                 </div>
-                <div className="w-full py-3 bg-card border rounded-lg font-bold text-xl text-primary">
-                  Amount to Pay: ₹{prices[watchPassType]}
+                <div className="text-right">
+                  <span className="text-2xl font-black font-outfit text-white">
+                    ₹{currentPrice}
+                  </span>
+                  <span className="text-[10px] text-emerald-400 block font-semibold">No Convenience Fees</span>
                 </div>
               </div>
 
-              <div className="space-y-2 pt-4">
-                <Label className="text-lg">Upload Your Payment Screenshot <span className="text-red-500">*</span></Label>
-                <div className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-muted/50 transition-colors relative">
-                  <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              {/* UPI Payment Box */}
+              <div className="p-6 rounded-2xl glass-card border border-primary/20 space-y-5">
+                <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider">
+                  <QrCode className="w-4 h-4 text-primary" /> Step 1: Pay via UPI
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-black/40 border border-white/10">
+                  {/* Mock UPI QR Graphic */}
+                  <div className="w-36 h-36 bg-white p-2 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-lg">
+                    <div className="w-full h-full border-2 border-black/10 rounded flex flex-col items-center justify-center p-2 text-black text-center">
+                      <QrCode className="w-16 h-16 text-black mb-1" />
+                      <span className="text-[8px] font-bold tracking-tight">SCAN TO PAY ₹{currentPrice}</span>
+                      <span className="text-[7px] text-zinc-500 font-mono">GENZ BLING 2026</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-left flex-1">
+                    <p className="text-xs text-zinc-300">
+                      Scan the QR code or send directly to the organizer UPI ID using GPay, PhonePe, or Paytm:
+                    </p>
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2.5">
+                      <span className="font-mono text-xs sm:text-sm font-bold text-[#ffb800] flex-1">
+                        7709468117@upi
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleCopyUpi}
+                        className="h-8 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border-0"
+                      >
+                        {copiedUpi ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span className="ml-1">{copiedUpi ? "Copied" : "Copy"}</span>
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-zinc-400">
+                      Amount to transfer: <strong className="text-white">₹{currentPrice}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Screenshot Upload Box */}
+                <div className="space-y-2 pt-2">
+                  <Label className="text-xs font-bold text-white uppercase tracking-wider block">
+                    Step 2: Upload Payment Screenshot *
+                  </Label>
+                  
                   {screenshotUrl ? (
-                    <div className="text-green-500 font-bold flex items-center gap-2">
-                      <CheckCircle2 /> Screenshot Uploaded
+                    <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                        <div>
+                          <p className="text-xs font-bold text-white">Screenshot Attached Successfully</p>
+                          <p className="text-[10px] text-zinc-400">Ready for verification</p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setScreenshotUrl("")}
+                        className="text-xs text-zinc-400 hover:text-white"
+                      >
+                        Change
+                      </Button>
                     </div>
                   ) : (
-                    <>
-                      <UploadCloud className="mb-2 h-8 w-8 text-muted-foreground" />
-                      <p className="font-medium">Tap to upload screenshot</p>
-                      <p className="text-xs text-muted-foreground mt-1">JPG, PNG up to 5MB</p>
-                    </>
+                    <label className="border-2 border-dashed border-white/20 hover:border-primary/50 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-white/[0.02] hover:bg-white/[0.04]">
+                      <UploadCloud className="w-8 h-8 text-primary mb-2" />
+                      <p className="text-xs font-bold text-white mb-0.5">Click to upload screenshot</p>
+                      <p className="text-[10px] text-zinc-500">Supports PNG, JPG, JPEG up to 5MB</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                    </label>
                   )}
                 </div>
               </div>
-            </Card>
 
+              {/* Submit Button */}
+              <div className="pt-4 flex justify-between items-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(2)}
+                  disabled={isSubmitting}
+                  className="h-12 px-6 rounded-xl border-white/10 text-zinc-300 hover:bg-white/5"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
+                <Button
+                  type="button"
+                  onClick={form.handleSubmit(onSubmit)}
+                  disabled={isSubmitting}
+                  className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-xl shadow-primary/30"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Complete Registration (₹{currentPrice}) <ArrowRight className="w-4 h-4 ml-1.5" />
+                    </>
+                  )}
+                </Button>
+              </div>
 
+            </motion.div>
+          )}
 
-            <div className="bg-card p-6 rounded-xl border text-sm space-y-4 shadow-sm">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" required className="mt-1 h-5 w-5 rounded border-primary accent-primary" />
-                <span>I confirm that the information provided is correct and matches my ID.</span>
-              </label>
-              {watchOptIn && (
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" required className="mt-1 h-5 w-5 rounded border-primary accent-primary" />
-                  <span>I understand that my Dandiya partner will be selected randomly and revealed 24 hours before the event.</span>
-                </label>
-              )}
-            </div>
+        </div>
+      </main>
 
-            <div className="flex gap-4">
-              <Button type="button" variant="outline" onClick={() => setStep(1)} className="w-1/3 h-14 rounded-xl">Back</Button>
-              <Button type="submit" disabled={isSubmitting} className="w-2/3 h-14 text-lg rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(193,18,31,0.4)]">
-                {isSubmitting ? <Loader2 className="animate-spin" /> : "SUBMIT & JOIN ✨"}
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </form>
+      <Footer />
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#09080e] flex items-center justify-center text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   )
 }
