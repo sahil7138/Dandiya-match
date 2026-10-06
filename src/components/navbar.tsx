@@ -23,10 +23,12 @@ export function Navbar() {
       <div className="glass-card rounded-2xl px-5 py-3.5 flex items-center justify-between border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff2a7a] via-[#8b5cf6] to-[#ffb800] p-[1.5px] transition-transform group-hover:scale-105">
-            <div className="w-full h-full bg-[#120f1e] rounded-[10px] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-[#ffb800] animate-pulse" />
-            </div>
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-0.5 transition-transform group-hover:scale-105 shadow-md shadow-primary/20">
+            <img
+              src="/logo.png"
+              alt="GENZ BLING NAVRATRI 2026"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <div className="flex items-center gap-1.5">

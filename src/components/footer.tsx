@@ -23,11 +23,13 @@ export function Footer() {
           
           {/* Brand & Concept */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff2a7a] via-[#8b5cf6] to-[#ffb800] p-[1.5px]">
-                <div className="w-full h-full bg-[#120f1e] rounded-[10px] flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-[#ffb800]" />
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-1 shrink-0 shadow-lg shadow-primary/20">
+                <img
+                  src="/logo.png"
+                  alt="GENZ BLING NAVRATRI 2026"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <h3 className="font-extrabold text-xl tracking-tight font-outfit text-white">
                 GENZ BLING NAVRATRI 2026

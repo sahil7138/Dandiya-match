@@ -189,16 +189,33 @@ export default function Home() {
           <span className="text-zinc-300">17TH OCT 2026</span>
         </motion.div>
 
+        {/* Official Event Logo Artwork */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="relative mb-4 max-w-[260px] sm:max-w-[320px] md:max-w-[360px] mx-auto group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/35 via-[#8b5cf6]/25 to-[#ffb800]/35 rounded-full blur-3xl -z-10 scale-95 animate-pulse" />
+          <img
+            src="/logo.png"
+            alt="GENZ BLING NAVRATRI 2026"
+            className="w-full h-auto object-contain drop-shadow-[0_15px_40px_rgba(255,42,122,0.45)] transition-transform duration-300 group-hover:scale-105"
+          />
+        </motion.div>
+
         {/* Main Headline */}
         <motion.h1
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-5xl sm:text-7xl md:text-8xl font-black font-outfit tracking-tight leading-[1.05] max-w-5xl mb-6"
+          className="text-4xl sm:text-6xl md:text-7xl font-black font-outfit tracking-tight leading-[1.05] max-w-5xl mb-4"
         >
-          GENZ BLING <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#ff6b00] to-[#ffb800] drop-shadow-[0_10px_30px_rgba(255,42,122,0.3)]">
-            NAVRATRI 2026
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#ffe0ec] to-white">
+            PUNE&apos;S ULTIMATE
+          </span> <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#ff6b00] to-[#ffb800] drop-shadow-[0_10px_30px_rgba(255,42,122,0.35)]">
+            DANDIYA CELEBRATION
           </span>
         </motion.h1>
 

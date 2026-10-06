@@ -59,6 +59,13 @@ export default function LoginPage() {
           {/* Card Container */}
           <div className="glass-card rounded-[2.5rem] p-8 md:p-10 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.6)] relative overflow-hidden">
             <div className="text-center mb-8">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl overflow-hidden bg-black/60 border border-white/10 p-1 shadow-lg shadow-primary/20">
+                <img
+                  src="/logo.png"
+                  alt="GENZ BLING NAVRATRI 2026"
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-pill border border-white/10 text-xs font-bold text-[#ffb800] uppercase tracking-wider mb-3">
                 <Sparkles className="w-3.5 h-3.5 text-primary" /> PASS HOLDER ACCESS
               </div>

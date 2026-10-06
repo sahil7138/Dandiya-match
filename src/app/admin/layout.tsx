@@ -26,8 +26,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const SidebarContent = () => (
     <>
       <div className="p-6 border-b flex items-center gap-2.5">
-        <div className="bg-gradient-to-br from-primary to-[#ffb800] p-2 rounded-xl text-black">
-          <Dices className="h-5 w-5" />
+        <div className="w-9 h-9 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-0.5 shadow-md shadow-primary/20 shrink-0">
+          <img
+            src="/logo.png"
+            alt="GENZ BLING '26"
+            className="w-full h-full object-contain"
+          />
         </div>
         <div>
           <h2 className="text-base font-extrabold text-foreground leading-none font-outfit">GENZ BLING &apos;26</h2>

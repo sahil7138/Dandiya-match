@@ -53,11 +53,13 @@ export default function DashboardClient({ data }: { data: any }) {
 
       {/* Top Bar */}
       <div className="w-full max-w-2xl flex justify-between items-center mb-8 glass-card rounded-2xl px-5 py-3 border border-white/10">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-[#ffb800] p-[1.5px]">
-            <div className="w-full h-full bg-[#120f1e] rounded-[6px] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#ffb800]" />
-            </div>
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-0.5 shadow-md shadow-primary/20">
+            <img
+              src="/logo.png"
+              alt="GENZ BLING NAVRATRI 2026"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <span className="font-extrabold font-outfit text-base text-white tracking-tight">GENZ BLING</span>

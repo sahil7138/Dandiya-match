@@ -225,6 +225,13 @@ function RegisterForm() {
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 md:py-16">
         {/* Header */}
         <div className="text-center mb-10">
+          <div className="w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden bg-black/60 border border-white/10 p-1.5 shadow-xl shadow-primary/20">
+            <img
+              src="/logo.png"
+              alt="GENZ BLING NAVRATRI 2026"
+              className="w-full h-full object-contain"
+            />
+          </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill border border-white/10 text-xs font-bold text-[#ffb800] uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5 text-primary" /> GENZ BLING 2026 REGISTRATION
           </div>
