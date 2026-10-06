@@ -164,7 +164,7 @@ export default function RegisterPage() {
         <div className="text-muted-foreground space-y-2 mt-6 border-l-2 border-primary/30 pl-4">
           <p>📅 17 October 2026</p>
           <p>⏰ 7:00 PM Onwards</p>
-          <p>📍 The Grand Palace Grounds</p>
+          <p>📍 Noupark Turf, Near Premia Society, Narhe</p>
         </div>
       </div>
 
