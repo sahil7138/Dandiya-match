@@ -697,20 +697,17 @@ export default function Home() {
 
               {/* Logo / Brand Display */}
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-16 px-4 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center">
+                <div className="h-16 px-4 rounded-2xl bg-white/95 border border-white/20 flex items-center justify-center shadow-lg">
                   <img
-                    src="/partners/webwork.svg"
+                    src="/partners/webwork.png"
                     alt="Webwork Studios LLP"
-                    className="h-8 w-auto object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none"
-                    }}
+                    className="h-12 w-auto object-contain"
                   />
-                  <div className="ml-2 flex items-baseline gap-1">
-                    <span className="font-extrabold text-xl font-outfit text-white tracking-tight">
+                  <div className="ml-3 flex items-baseline gap-1">
+                    <span className="font-extrabold text-xl font-outfit text-zinc-950 tracking-tight">
                       webwork studios
                     </span>
-                    <span className="font-mono text-xs font-bold text-cyan-400">LLP</span>
+                    <span className="font-mono text-xs font-bold text-cyan-600">LLP</span>
                   </div>
                 </div>
               </div>
