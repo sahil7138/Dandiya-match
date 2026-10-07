@@ -8,7 +8,7 @@
 
 ## 🌟 Leadership & Partnerships
 - **Organized By:** **EventWale** — Premier event curation, production, and cultural nightlife experiences.
-- **Technology Partner:** **Webwork Studios LLP** — Modern web application engineering, ticketing verification, and algorithmic matchmaking platform.
+- **Technology Partner:** [**Webwork Studios LLP**](https://webworksstudios.com/) — Modern web application engineering, ticketing verification, and algorithmic matchmaking platform.
 
 ---
 

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { 
-  CalendarDays, MapPin, Clock, Users, Sparkles, Music, Star, ArrowRight, 
+  CalendarDays, MapPin, Clock, Users, Sparkles, Music, Star, ArrowRight, ArrowUpRight,
   ShieldCheck, Phone, MessageSquare, ChevronDown, Check, Zap, Heart, Disc, Flame
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -697,11 +697,16 @@ export default function Home() {
 
               {/* Logo / Brand Display */}
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-16 px-4 rounded-2xl bg-white/95 border border-white/20 flex items-center justify-center shadow-lg">
+                <a
+                  href="https://webworksstudios.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-16 px-4 rounded-2xl bg-white/95 border border-white/20 flex items-center justify-center shadow-lg hover:bg-white transition-all group/logo cursor-pointer"
+                >
                   <img
                     src="/partners/webwork.png"
                     alt="Webwork Studios LLP"
-                    className="h-12 w-auto object-contain"
+                    className="h-12 w-auto object-contain transition-transform group-hover/logo:scale-105"
                   />
                   <div className="ml-3 flex items-baseline gap-1">
                     <span className="font-extrabold text-xl font-outfit text-zinc-950 tracking-tight">
@@ -709,19 +714,36 @@ export default function Home() {
                     </span>
                     <span className="font-mono text-xs font-bold text-cyan-600">LLP</span>
                   </div>
-                </div>
+                </a>
               </div>
 
-              <h3 className="text-xl font-bold font-outfit text-white mb-2">
-                Webwork Studios LLP
-              </h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-bold font-outfit text-white">
+                  Webwork Studios LLP
+                </h3>
+                <a
+                  href="https://webworksstudios.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 hover:text-cyan-300 hover:underline"
+                >
+                  Visit Website <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
               <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
                 Engineering high-performance web applications, digital pass verification, and the proprietary AI matchmaking algorithm powering the Dandiya Match experience.
               </p>
             </div>
 
             <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
-              <span>Web Architecture & Algorithmic Match</span>
+              <a
+                href="https://webworksstudios.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-cyan-400 transition-colors flex items-center gap-1"
+              >
+                webworksstudios.com <ArrowUpRight className="w-3 h-3" />
+              </a>
               <span className="text-cyan-400 font-semibold">★ Technology Partner</span>
             </div>
           </motion.div>

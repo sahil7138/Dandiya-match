@@ -143,7 +143,12 @@ export function Footer() {
             {/* Webwork Studios LLP */}
             <div className="flex items-center gap-3">
               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Technology Partner:</span>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
+              <a
+                href="https://webworksstudios.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/30 transition-all group"
+              >
                 <div className="w-6 h-6 rounded-lg overflow-hidden bg-white p-0.5 flex items-center justify-center">
                   <img
                     src="/partners/webwork.png"
@@ -151,10 +156,10 @@ export function Footer() {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <span className="font-extrabold text-sm text-white font-outfit tracking-wide">
-                  Webwork Studios LLP
+                <span className="font-extrabold text-sm text-white group-hover:text-cyan-400 transition-colors font-outfit tracking-wide flex items-center gap-1">
+                  Webwork Studios LLP <ArrowUpRight className="w-3 h-3 text-zinc-400 group-hover:text-cyan-400" />
                 </span>
-              </div>
+              </a>
             </div>
           </div>
 
@@ -167,7 +172,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <p>© 2026 GENZ BLING NAVRATRI. Organized by EventWale • Tech by Webwork Studios LLP.</p>
+          <p>© 2026 GENZ BLING NAVRATRI. Organized by EventWale • Tech by <a href="https://webworksstudios.com/" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-white underline">Webwork Studios LLP</a>.</p>
           <p className="flex items-center gap-1.5 text-zinc-400">
             Designed for the ultimate festive energy <Sparkles className="w-3.5 h-3.5 text-[#ffb800]" />
           </p>
