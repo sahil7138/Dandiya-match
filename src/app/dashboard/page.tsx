@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import DashboardClient from "./client"
+import DashboardClient from "./_components/client"
 
 async function getDashboardData() {
   const cookieStore = await cookies()

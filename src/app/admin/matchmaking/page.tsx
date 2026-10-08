@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { Card } from "@/components/ui/card"
-import MatchmakingClient from "./client"
+import MatchmakingClient from "./_components/client"
 
 export default async function MatchmakingAdminPage() {
   const eligible = await prisma.user.count({

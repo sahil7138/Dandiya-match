@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { ManageRevealModal } from "./manage-reveal-modal"
+import { ManageRevealModal } from "./_components/manage-reveal-modal"
 
 export default async function MatchesPage() {
   const matches = await prisma.match.findMany({

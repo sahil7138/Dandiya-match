@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import PaymentClient from "./client"
+import PaymentClient from "./_components/client"
 
 export default async function PaymentsPage() {
   const pendingPayments = await prisma.payment.findMany({

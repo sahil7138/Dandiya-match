@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { logoutAdmin } from "../actions/admin-auth"
+import { logoutAdmin } from "@/actions/admin-auth"
 import { Button } from "@/components/ui/button"
 import { 
   LayoutDashboard, Users, CreditCard, Network, Dices, 

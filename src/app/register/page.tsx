@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PassTypeEnum } from "@prisma/client"
-import { submitRegistration } from "../actions/register"
+import { submitRegistration } from "@/actions/register"
 import { toast } from "sonner"
 import { 
   CheckCircle2, ChevronRight, ChevronLeft, Loader2, UploadCloud, Sparkles, 

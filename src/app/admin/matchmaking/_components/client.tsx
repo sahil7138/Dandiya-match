@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
-import { generateMatches } from "../../actions/matchmaking"
+import { generateMatches } from "@/actions/matchmaking"
 import { 
   Dialog,
   DialogContent,

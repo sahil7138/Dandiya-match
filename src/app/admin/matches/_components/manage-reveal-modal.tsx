@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { updateRevealTime } from "@/app/actions/matchmaking"
+import { updateRevealTime } from "@/actions/matchmaking"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {

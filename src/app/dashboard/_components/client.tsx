@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { logoutUser } from "../actions/auth"
+import { logoutUser } from "@/actions/auth"
 import { 
   LogOut, Ticket, CreditCard, Lock, Sparkles, Clock, CheckCircle2, 
   Loader2, CalendarDays, MapPin, Phone, MessageSquare, User, ShieldCheck, Heart
