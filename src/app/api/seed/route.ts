@@ -43,7 +43,7 @@ export async function GET() {
       const u = await prisma.user.create({ data: { name, phone } })
       if (optIn) {
         await prisma.matchProfile.create({
-          data: { userId: u.id, ageGroup: "21-23", experience: "Intermediate", vibe }
+          data: { userId: u.id, age: 22, experience: "Intermediate", vibe }
         })
       }
       const r = await prisma.registration.create({

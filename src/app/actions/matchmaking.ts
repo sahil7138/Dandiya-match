@@ -36,7 +36,7 @@ export async function generateMatches() {
     males.sort((a, b) => a.matchProfile!.age - b.matchProfile!.age)
     females.sort((a, b) => a.matchProfile!.age - b.matchProfile!.age)
 
-    const pairs = []
+    const pairs: any[] = []
     const matchedMaleIds = new Set<string>()
     const matchedFemaleIds = new Set<string>()
 

@@ -66,7 +66,7 @@ async function getDashboardData() {
         partner: isRevealed ? {
           name: partner.name,
           gender: partner.matchProfile?.gender,
-          ageGroup: partner.matchProfile?.ageGroup,
+          age: partner.matchProfile?.age,
           experience: partner.matchProfile?.experience,
           vibe: partner.matchProfile?.vibe,
         } : null

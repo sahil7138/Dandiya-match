@@ -56,7 +56,7 @@ function RegisterForm() {
   const [copiedUpi, setCopiedUpi] = useState(false)
 
   const form = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       name: "",
       phone: "",
@@ -110,7 +110,7 @@ function RegisterForm() {
       setStep(2)
     } else if (step === 2) {
       if (watchPassType === PassTypeEnum.SINGLE && watchOptIn) {
-        const isMatchValid = await form.trigger(["gender", "preferredGender", "ageGroup", "experience", "vibe"])
+        const isMatchValid = await form.trigger(["gender", "preferredGender", "age", "experience", "vibe"])
         if (!isMatchValid) return
       }
       setStep(3)
@@ -740,7 +740,7 @@ function RegisterForm() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={form.handleSubmit(onSubmit)}
+                  onClick={form.handleSubmit(onSubmit as any)}
                   disabled={isSubmitting}
                   className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-xl shadow-primary/30"
                 >
