@@ -268,6 +268,39 @@ export default function Home() {
         >
           <EventCountdown />
         </motion.div>
+
+        {/* Sponsors Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="w-full max-w-5xl mt-16"
+        >
+          <p className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-6">Our Sponsors & Partners</p>
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
+            {[
+              "001.png",
+              "Black Musical Notes Icon Logo_20260221_090025_0000.png",
+              "Digital Prabhat_Logo.jpg.jpeg",
+              "Eventwale logo.png",
+              "GD.png",
+              "Layer 29.png",
+              "PHOTO-2026-09-29-11-41-56.png",
+              "PHOTO-2026-09-29-11-51-41.png",
+              "genz bling png.png",
+              "noupark.png",
+              "parvati logo.png"
+            ].map((logo, idx) => (
+              <div key={idx} className="h-16 w-24 sm:h-20 sm:w-32 flex items-center justify-center p-2 sm:p-3 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                <img
+                  src={`/Sponsores/${logo}`}
+                  alt={`Sponsor ${idx + 1}`}
+                  className="max-h-full max-w-full object-contain filter drop-shadow-sm brightness-110"
+                />
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
       {/* Event Overview Badges Banner */}
@@ -653,7 +686,7 @@ export default function Home() {
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-16 px-4 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center">
                   <img
-                    src="/partners/eventwale.svg"
+                    src="/Sponsores/Eventwale logo.png"
                     alt="EventWale"
                     className="h-9 w-auto object-contain"
                     onError={(e) => {

@@ -38,7 +38,7 @@ const schema = z.object({
   member10: z.string().optional(),
   gender: z.string().optional(),
   preferredGender: z.string().optional(),
-  ageGroup: z.string().optional(),
+  age: z.coerce.number().min(16, "You must be at least 16").max(100, "Invalid age").optional(),
   experience: z.string().optional(),
   vibe: z.string().optional(),
 })
@@ -66,7 +66,7 @@ function RegisterForm() {
       matchmakingOptIn: true,
       gender: "Male",
       preferredGender: "Female",
-      ageGroup: "22-25",
+      age: 22,
       experience: "Casual (Can do 2-Taali)",
       vibe: "Energetic & Fast Beats",
     },
@@ -517,27 +517,22 @@ function RegisterForm() {
                         </p>
                       </div>
 
-                      {/* Age Group */}
+                      {/* Age Input */}
                       <div>
-                        <Label className="text-xs font-bold text-zinc-300 mb-2 block">
-                          Your Age Group:
+                        <Label htmlFor="age" className="text-xs font-bold text-zinc-300 mb-2 block">
+                          Your Age:
                         </Label>
-                        <div className="grid grid-cols-4 gap-2.5">
-                          {["18-21", "22-25", "26-30", "30+"].map((age) => (
-                            <button
-                              key={age}
-                              type="button"
-                              onClick={() => form.setValue("ageGroup", age)}
-                              className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
-                                form.watch("ageGroup") === age
-                                  ? "bg-white text-black border-white font-bold"
-                                  : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
-                              }`}
-                            >
-                              {age}
-                            </button>
-                          ))}
-                        </div>
+                        <Input
+                          id="age"
+                          type="number"
+                          {...form.register("age")}
+                          className="bg-black/40 border-white/10 h-12 w-full sm:w-1/2 rounded-xl text-white px-3 focus:border-primary border outline-none"
+                          min="16"
+                          max="100"
+                        />
+                        {form.formState.errors.age && (
+                          <p className="text-xs text-red-400 mt-1">{form.formState.errors.age.message}</p>
+                        )}
                       </div>
 
                       {/* Dandiya Dance Experience */}

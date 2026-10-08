@@ -28,7 +28,7 @@ const registerSchema = z.object({
   // Match profile fields
   gender: z.string().optional(),
   preferredGender: z.string().optional(),
-  ageGroup: z.string().optional(),
+  age: z.coerce.number().min(16).max(100).optional(),
   experience: z.string().optional(),
   vibe: z.string().optional(),
 
@@ -40,9 +40,7 @@ const registerSchema = z.object({
 export async function submitRegistration(data: z.infer<typeof registerSchema>) {
   try {
     const validated = registerSchema.parse(data)
-    // Auto-generate GBN Number
-    const count = await prisma.registration.count()
-    const generatedGbn = `GBN-${1000 + count + 1}`
+    
     // Check Phone uniqueness
     const existingPhone = await prisma.user.findUnique({
       where: { phone: validated.phone }
@@ -50,6 +48,26 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
     
     if (existingPhone) {
       return { success: false, error: "This phone number is already registered." }
+    }
+
+    // Auto-assign the lowest available GBN number (1 to 100)
+    const registrations = await prisma.registration.findMany({
+      select: { gbnNumber: true },
+      where: { gbnNumber: { startsWith: "GBN-" } }
+    })
+    const takenPasses = new Set(registrations.map(r => r.gbnNumber))
+    
+    let assignedGbn = null
+    for (let i = 1; i <= 100; i++) {
+      const passNumber = `GBN-${i.toString().padStart(4, '0')}`
+      if (!takenPasses.has(passNumber)) {
+        assignedGbn = passNumber
+        break
+      }
+    }
+
+    if (!assignedGbn) {
+      return { success: false, error: "Registration full! All 100 passes have been claimed." }
     }
 
     // Business Logic Validation (CRITICAL)
@@ -75,7 +93,7 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
             userId: user.id,
             gender: validated.gender || "Male",
             preferredGender: validated.preferredGender || "Anyone",
-            ageGroup: validated.ageGroup || "18-20",
+            age: validated.age || 18,
             experience: validated.experience || "Beginner",
             vibe: validated.vibe || "Fun & Goofy",
           }
@@ -108,7 +126,7 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
         data: {
           userId: user.id,
           passType: validated.passType,
-          gbnNumber: generatedGbn,
+          gbnNumber: assignedGbn,
           matchmakingOptIn: finalOptIn,
           partnerName: validated.partnerName,
           partnerPhone: validated.partnerPhone,

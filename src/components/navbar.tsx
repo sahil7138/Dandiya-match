@@ -66,7 +66,7 @@ export function Navbar() {
               Login
             </Button>
           </Link>
-          <Link href="/register">
+          <a href="/register">
             <Button
               size="sm"
               className="rounded-xl text-xs font-bold bg-gradient-to-r from-primary via-[#e11d48] to-[#ffb800] hover:opacity-95 text-white shadow-lg shadow-primary/25 border-0 hover:scale-[1.02] transition-transform"
@@ -74,7 +74,7 @@ export function Navbar() {
               <Ticket className="w-3.5 h-3.5 mr-1.5" />
               Book Pass
             </Button>
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Hamburger */}
@@ -114,11 +114,11 @@ export function Navbar() {
                   <User className="w-4 h-4 mr-2" /> Participant Login
                 </Button>
               </Link>
-              <Link href="/register" onClick={() => setIsOpen(false)}>
+              <a href="/register" onClick={() => setIsOpen(false)}>
                 <Button className="w-full rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold">
                   <Ticket className="w-4 h-4 mr-2" /> Book Pass Now
                 </Button>
-              </Link>
+              </a>
             </div>
           </motion.div>
         )}

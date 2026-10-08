@@ -105,7 +105,7 @@ model MatchProfile {
   id              String   @id @default(cuid())
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ageGroup        String
+  age             Int
   experience      String
   vibe            String
   gender          String?

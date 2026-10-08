@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import { ManageRevealModal } from "./manage-reveal-modal"
 
 export default async function MatchesPage() {
   const matches = await prisma.match.findMany({
@@ -21,9 +22,7 @@ export default async function MatchesPage() {
           <h1 className="text-3xl font-bold font-outfit text-foreground tracking-tight">Matches</h1>
           <p className="text-muted-foreground mt-1">View all generated Dandiya pairs.</p>
         </div>
-        <Link href="/admin/matches/reveal" className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium text-sm">
-          Manage Reveal Time
-        </Link>
+        <ManageRevealModal />
       </div>
 
       <Card className="border-border">

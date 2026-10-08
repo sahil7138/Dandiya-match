@@ -90,7 +90,7 @@ export default function PaymentClient({ initialPayments }: { initialPayments: an
                       View
                     </Button>
                   </td>
-                  <td className="px-6 py-4 text-xs text-muted-foreground">
+                  <td className="px-6 py-4 text-xs text-muted-foreground" suppressHydrationWarning>
                     {new Date(payment.createdAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">

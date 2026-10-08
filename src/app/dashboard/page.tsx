@@ -14,7 +14,9 @@ async function getDashboardData() {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      registration: true,
+      registration: {
+        include: { payment: true }
+      },
       matchProfile: true,
     }
   })
@@ -47,11 +49,21 @@ async function getDashboardData() {
       const isA = match.participantAId === user.id
       const partner = isA ? match.participantB : match.participantA
       
+      const isTimePassed = new Date() >= match.revealAt;
+      const isRevealed = match.status === "REVEALED" || isTimePassed;
+
+      if (isTimePassed && match.status !== "REVEALED") {
+        await prisma.match.update({
+          where: { id: match.id },
+          data: { status: "REVEALED" }
+        }).catch(console.error); // Catch error if any, don't fail the page load
+      }
+      
       matchData = {
         id: match.id,
-        status: match.status,
+        status: isRevealed ? "REVEALED" : match.status,
         revealAt: match.revealAt.toISOString(),
-        partner: match.status === "REVEALED" ? {
+        partner: isRevealed ? {
           name: partner.name,
           gender: partner.matchProfile?.gender,
           ageGroup: partner.matchProfile?.ageGroup,
@@ -74,6 +86,7 @@ async function getDashboardData() {
       matchmakingOptIn: user.registration.matchmakingOptIn,
       partnerName: user.registration.partnerName,
       groupMembers: user.registration.groupMembers as any,
+      rejectionReason: user.registration.payment?.rejectionReason,
     },
     match: matchData
   }

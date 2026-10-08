@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
@@ -90,9 +91,24 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
                   <p className="font-medium">{new Date(reg.payment.createdAt).toLocaleString()}</p>
                 </div>
                 <div className="pt-2">
-                  <a href={reg.payment.paymentScreenshotUrl} target="_blank" rel="noreferrer" className="text-primary text-sm hover:underline">
-                    View Payment Screenshot
-                  </a>
+                  <Dialog>
+                    <DialogTrigger
+                      render={
+                        <Button variant="link" className="text-primary text-sm p-0 h-auto hover:underline" />
+                      }
+                    >
+                      View Payment Screenshot
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl bg-black border-zinc-800">
+                      <div className="flex flex-col items-center">
+                        <img 
+                          src={reg.payment.paymentScreenshotUrl} 
+                          alt="Payment Screenshot" 
+                          className="max-w-full max-h-[80vh] object-contain rounded-md" 
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </>
             )}

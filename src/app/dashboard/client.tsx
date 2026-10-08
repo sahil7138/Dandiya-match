@@ -156,7 +156,22 @@ export default function DashboardClient({ data }: { data: any }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {/* COUPLE PASS */}
+          {data.registration.paymentStatus === "REJECTED" ? (
+            <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-red-500/30 text-center space-y-3">
+              <span className="text-4xl block mb-2">❌</span>
+              <h3 className="text-2xl font-black font-outfit text-white">Payment Declined</h3>
+              <p className="text-sm text-zinc-400 max-w-sm mx-auto">
+                Your payment screenshot could not be verified.
+              </p>
+              {data.registration.rejectionReason && (
+                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+                  <strong>Reason:</strong> {data.registration.rejectionReason}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* COUPLE PASS */}
           {data.registration.passType === "COUPLE" && (
             <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center space-y-3">
               <span className="text-3xl block">💃🕺</span>
@@ -326,6 +341,8 @@ export default function DashboardClient({ data }: { data: any }) {
                 </div>
               )}
 
+            </div>
+          )}
             </div>
           )}
         </motion.div>
