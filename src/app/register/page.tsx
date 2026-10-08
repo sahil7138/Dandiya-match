@@ -38,7 +38,7 @@ const schema = z.object({
   member10: z.string().optional(),
   gender: z.string().optional(),
   preferredGender: z.string().optional(),
-  age: z.coerce.number().min(16, "You must be at least 16").max(100, "Invalid age").optional(),
+  age: z.number().min(16, "You must be at least 16").max(100, "Invalid age").optional(),
   experience: z.string().optional(),
   vibe: z.string().optional(),
 })
@@ -56,7 +56,7 @@ function RegisterForm() {
   const [copiedUpi, setCopiedUpi] = useState(false)
 
   const form = useForm<FormData>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       phone: "",
@@ -525,7 +525,7 @@ function RegisterForm() {
                         <Input
                           id="age"
                           type="number"
-                          {...form.register("age")}
+                          {...form.register("age", { valueAsNumber: true })}
                           className="bg-black/40 border-white/10 h-12 w-full sm:w-1/2 rounded-xl text-white px-3 focus:border-primary border outline-none"
                           min="16"
                           max="100"
@@ -740,7 +740,7 @@ function RegisterForm() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={form.handleSubmit(onSubmit as any)}
+                  onClick={form.handleSubmit(onSubmit)}
                   disabled={isSubmitting}
                   className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-xl shadow-primary/30"
                 >
