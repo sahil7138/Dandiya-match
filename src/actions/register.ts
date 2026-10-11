@@ -144,10 +144,15 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
         }
       })
 
-      return registration.id
+      return { registrationId: registration.id, assignedGbn }
     })
 
-    return { success: true, registrationId: result }
+    return { 
+      success: true, 
+      registrationId: result.registrationId, 
+      gbnNumber: result.assignedGbn,
+      phone: validated.phone 
+    }
     
   } catch (error: any) {
     console.error("Registration error:", error)

@@ -18,15 +18,21 @@
   - 👫 **Duo Pass (₹549):** Entry for 2 • For couples & dynamic duos.
   - 👥 **Bling Squad (₹1,149):** Entry for 4 • Group fast-track lane.
   - 👨‍👩‍👧‍👦 **Bling Gang (₹2,799):** Entry for 10 • Lowest per-person rate (₹280/p).
+- **Official UPI Payment Integration:**
+  - Official Google Pay UPI QR code image with 1-click UPI ID copy (`venkateshpuliraj035-2@okhdfcbank`).
+  - Seamless screenshot upload & instant verification workflow.
+- **Attendee Mobile & Pass Number Login:**
+  - Secure pass holder authentication using registered 10-digit mobile number and official GBN Pass Number (e.g. `GBN-0001`).
+  - Integrated "Retrieve Pass Number" lookup assistant for attendees.
 - **Secret Dandiya Matchmaking:**
   - Participants select their age bracket, dance experience, festival vibe, and preferred partner gender (Male, Female, or Any).
   - Matches remain strictly confidential and locked until 24 hours before the event, unlocking on the attendee dashboard.
 - **Attendee Dashboard:**
-  - Digital VIP holographic wristband pass with auto-generated GBN Number (e.g. `GBN-1001`).
+  - Digital VIP holographic wristband pass with auto-generated GBN Number (e.g. `GBN-0001`).
   - Real-time countdown timer to the match reveal.
   - Partner reveal card with mutual connect options.
 - **Admin Management Portal:**
-  - Participant registry with search and filters.
+  - Interactive participant registry with live search by name, phone, or GBN pass number.
   - Instant UPI screenshot payment verification & ticket approval.
   - One-click algorithmic matchmaking generator.
   - Event controls & reveal timer configuration.
@@ -38,31 +44,31 @@
 ```
 dandiya-match/
 ├── prisma/
-│   └── schema.prisma          # PostgreSQL schema (Users, Passes, Matches, GroupMembers)
+│   └── schema.prisma          # PostgreSQL schema (Users, Passes, Matches, Settings)
 ├── public/
 │   ├── logo.png               # Official GENZ BLING NAVRATRI artwork
 │   ├── genz-bling-logo.png    # High-res festival logo
-│   └── partners/
-│       ├── eventwale.svg      # EventWale official organizer logo
-│       ├── webwork.png        # Webwork Studios LLP official technology partner logo
-│       └── webwork.svg        # Vector alternative
+│   ├── payment-qr.png         # Official Google Pay UPI QR Code (Venkatesh Puliraj)
+│   ├── partners/              # Official organizer & tech partner brand assets
+│   └── Sponsores/             # Festival sponsors brand assets
 ├── src/
+│   ├── actions/               # Next.js Server Actions
+│   │   ├── admin-auth.ts      # Admin session & authentication
+│   │   ├── admin-payments.ts  # Ticket approval & rejection workflow
+│   │   ├── auth.ts            # Attendee Mobile + Pass Number login & pass lookup
+│   │   ├── matchmaking.ts     # Algorithmic partner matching engine
+│   │   └── register.ts        # Pass booking & transaction handler
 │   ├── app/
-│   │   ├── actions/           # Next.js Server Actions
-│   │   │   ├── admin-auth.ts
-│   │   │   ├── admin-payments.ts
-│   │   │   ├── auth.ts
-│   │   │   ├── matchmaking.ts
-│   │   │   └── register.ts
 │   │   ├── admin/             # Organizer & Admin Portal
-│   │   │   ├── event/
-│   │   │   ├── matches/
-│   │   │   ├── matchmaking/
-│   │   │   ├── participants/
-│   │   │   └── payments/
-│   │   ├── dashboard/         # Attendee Pass & Match Dashboard
-│   │   ├── login/             # Attendee OTP Login
-│   │   ├── register/          # 3-Step Pass Booking & Match Wizard
+│   │   │   ├── event/         # Event metadata & lifecycle settings
+│   │   │   ├── login/         # Admin portal authentication
+│   │   │   ├── matches/       # Partner pairs & reveal lock controls
+│   │   │   ├── matchmaking/   # Algorithmic matchmaking generator
+│   │   │   ├── participants/  # Attendee registry & interactive search
+│   │   │   └── payments/      # UPI payment screenshot approvals
+│   │   ├── dashboard/         # Attendee Pass & Secret Match reveal dashboard
+│   │   ├── login/             # Attendee Mobile & Pass Number Login
+│   │   ├── register/          # 3-Step Pass Booking Wizard & UPI QR payment
 │   │   ├── rules/             # Matchmaking & Community Guidelines
 │   │   ├── globals.css        # Luxury GenZ dark mode styling & design tokens
 │   │   ├── layout.tsx         # Root Layout
@@ -72,9 +78,11 @@ dandiya-match/
 │   │   ├── footer.tsx         # Contact helplines, venue map & partner credits
 │   │   ├── navbar.tsx         # Floating glassmorphic header
 │   │   └── ui/                # Accessible design system components (Radix/shadcn)
-│   └── lib/
-│       ├── prisma.ts          # Singleton Prisma Client
-│       └── utils.ts           # Class merger utilities
+│   ├── lib/
+│   │   ├── prisma.ts          # Singleton Prisma Client
+│   │   └── utils.ts           # Class merger utilities
+│   └── types/
+│       └── index.ts           # Centralized TypeScript interfaces & domain types
 └── package.json
 ```
 
@@ -101,7 +109,7 @@ npm install
 Create a `.env` file in the root directory:
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/dandiya_match?schema=public"
-ADMIN_PIN="1234"
+DIRECT_URL="postgresql://user:password@localhost:5432/dandiya_match?schema=public"
 ```
 
 ### 3. Initialize Database
