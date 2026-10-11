@@ -147,25 +147,57 @@ export function RegisterForm() {
         fieldsToTrigger.push("instagramId")
       }
       const isBasicValid = await form.trigger(fieldsToTrigger)
-      if (!isBasicValid) return
+      if (!isBasicValid) {
+        const errors = form.formState.errors
+        const errorMsg =
+          errors.name?.message ||
+          errors.phone?.message ||
+          errors.passType?.message ||
+          errors.instagramId?.message ||
+          "Please fill in all required attendee details."
+        toast.error(errorMsg)
+        return
+      }
 
       if (watchPassType === PassTypeEnum.COUPLE) {
         const isCoupleValid = await form.trigger(["partnerName"])
-        if (!isCoupleValid) return
+        if (!isCoupleValid) {
+          const partnerErr = form.formState.errors.partnerName?.message
+          toast.error(partnerErr || "Please enter your dance partner's full name.")
+          return
+        }
       } else if (watchPassType === PassTypeEnum.GROUP) {
         const isGroupValid = await form.trigger(["member2", "member3", "member4"])
-        if (!isGroupValid) return
+        if (!isGroupValid) {
+          toast.error("Please enter the names of all 4 group members.")
+          return
+        }
       } else if (watchPassType === PassTypeEnum.GANG) {
         const isGangValid = await form.trigger([
           "member2", "member3", "member4", "member5", "member6", "member7", "member8", "member9", "member10"
         ])
-        if (!isGangValid) return
+        if (!isGangValid) {
+          toast.error("Please enter the names of all 10 squad members.")
+          return
+        }
       }
       setStep(2)
     } else if (step === 2) {
       if (watchPassType === PassTypeEnum.SINGLE && watchOptIn) {
         const isMatchValid = await form.trigger(["gender", "preferredGender", "age", "experience", "vibe", "instagramId"])
-        if (!isMatchValid) return
+        if (!isMatchValid) {
+          const errors = form.formState.errors
+          const errorMsg =
+            errors.gender?.message ||
+            errors.preferredGender?.message ||
+            errors.age?.message ||
+            errors.experience?.message ||
+            errors.vibe?.message ||
+            errors.instagramId?.message ||
+            "Please complete all matchmaking questions to continue."
+          toast.error(errorMsg)
+          return
+        }
       }
       setStep(3)
     }
@@ -174,8 +206,12 @@ export function RegisterForm() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload a valid image file (PNG, JPG, or WEBP).")
+        return
+      }
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be under 5MB")
+        toast.error("File size must be under 5MB. Please upload a smaller image.")
         return
       }
       const reader = new FileReader()
@@ -192,6 +228,13 @@ export function RegisterForm() {
     setCopiedUpi(true)
     toast.success("UPI ID copied to clipboard!")
     setTimeout(() => setCopiedUpi(false), 2000)
+  }
+
+  const onFormError = (errors: any) => {
+    const firstKey = Object.keys(errors)[0]
+    const err = errors[firstKey]
+    const message = err?.message || "Please complete all required fields before submitting."
+    toast.error(message)
   }
 
   const onSubmit = async (data: FormData) => {
@@ -226,7 +269,7 @@ export function RegisterForm() {
       })
       toast.success("Registration submitted successfully!")
     } else {
-      toast.error(res.error || "Failed to submit registration")
+      toast.error(res.error || "Failed to submit registration. Please try again.")
     }
   }
 
@@ -926,7 +969,7 @@ export function RegisterForm() {
               </Button>
               <Button
                 type="button"
-                onClick={form.handleSubmit(onSubmit)}
+                onClick={form.handleSubmit(onSubmit, onFormError)}
                 disabled={isSubmitting}
                 className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-xl shadow-primary/30"
               >

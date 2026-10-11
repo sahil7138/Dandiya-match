@@ -11,32 +11,47 @@ export default async function AdminDashboardPage() {
   const isAdmin = cookieStore.get("admin_session")?.value
   if (!isAdmin) redirect("/admin/login")
 
-  // Fetch counts in parallel
-  const [
-    totalRegistrations,
-    verifiedPayments,
-    pendingPayments,
-    rejectedPayments,
-    singlePasses,
-    couplePasses,
-    groupPasses,
-    gangPasses,
-    optIns,
-    matchesCount
-  ] = await Promise.all([
-    prisma.registration.count(),
-    prisma.registration.count({ where: { paymentStatus: "VERIFIED" } }),
-    prisma.registration.count({ where: { paymentStatus: "PENDING" } }),
-    prisma.registration.count({ where: { paymentStatus: "REJECTED" } }),
-    prisma.registration.count({ where: { passType: "SINGLE" } }),
-    prisma.registration.count({ where: { passType: "COUPLE" } }),
-    prisma.registration.count({ where: { passType: "GROUP" } }),
-    prisma.registration.count({ where: { passType: "GANG" } }),
-    prisma.registration.count({ where: { matchmakingOptIn: true, paymentStatus: "VERIFIED" } }),
-    prisma.match.count()
-  ])
+  let totalRegistrations = 0
+  let verifiedPayments = 0
+  let pendingPayments = 0
+  let rejectedPayments = 0
+  let singlePasses = 0
+  let couplePasses = 0
+  let groupPasses = 0
+  let gangPasses = 0
+  let optIns = 0
+  let matchesCount = 0
 
-  const optOuts = singlePasses - optIns
+  try {
+    const counts = await Promise.all([
+      prisma.registration.count(),
+      prisma.registration.count({ where: { paymentStatus: "VERIFIED" } }),
+      prisma.registration.count({ where: { paymentStatus: "PENDING" } }),
+      prisma.registration.count({ where: { paymentStatus: "REJECTED" } }),
+      prisma.registration.count({ where: { passType: "SINGLE" } }),
+      prisma.registration.count({ where: { passType: "COUPLE" } }),
+      prisma.registration.count({ where: { passType: "GROUP" } }),
+      prisma.registration.count({ where: { passType: "GANG" } }),
+      prisma.registration.count({ where: { matchmakingOptIn: true, paymentStatus: "VERIFIED" } }),
+      prisma.match.count()
+    ])
+    ;[
+      totalRegistrations,
+      verifiedPayments,
+      pendingPayments,
+      rejectedPayments,
+      singlePasses,
+      couplePasses,
+      groupPasses,
+      gangPasses,
+      optIns,
+      matchesCount
+    ] = counts
+  } catch (err) {
+    console.error("Failed to load dashboard metrics from database:", err)
+  }
+
+  const optOuts = Math.max(0, singlePasses - optIns)
   
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

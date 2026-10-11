@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { 
   Sparkles, Phone, Ticket, ArrowRight, Loader2, Search, 
-  HelpCircle, CheckCircle2, Copy, Check 
+  HelpCircle, CheckCircle2, Copy, Check, AlertCircle 
 } from "lucide-react"
 
 export function LoginForm() {
@@ -21,6 +21,7 @@ export function LoginForm() {
   const [phone, setPhone] = useState("")
   const [passNumber, setPassNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Pass recovery modal / panel
   const [showLookup, setShowLookup] = useState(false)
@@ -44,22 +45,29 @@ export function LoginForm() {
   const handlePhoneChange = (val: string) => {
     const numeric = val.replace(/\D/g, "").slice(0, 10)
     setPhone(numeric)
+    if (errorMessage) setErrorMessage(null)
   }
 
   const handlePassChange = (val: string) => {
     setPassNumber(val.toUpperCase())
+    if (errorMessage) setErrorMessage(null)
   }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
 
     if (!phone || phone.length !== 10) {
-      toast.error("Please enter a valid 10-digit mobile number")
+      const msg = "Please enter a valid 10-digit mobile number"
+      setErrorMessage(msg)
+      toast.error(msg)
       return
     }
 
     if (!passNumber.trim()) {
-      toast.error("Please enter your Pass Number (e.g. GBN-0001)")
+      const msg = "Please enter your Pass Number (e.g. GBN-0001)"
+      setErrorMessage(msg)
+      toast.error(msg)
       return
     }
 
@@ -70,10 +78,14 @@ export function LoginForm() {
         toast.success("Welcome back! Loading your dashboard...")
         router.push("/dashboard")
       } else {
-        toast.error(res.error || "Login failed")
+        const errorText = res.error || "Login failed. Please check your credentials."
+        setErrorMessage(errorText)
+        toast.error(errorText)
       }
     } catch {
-      toast.error("An unexpected error occurred. Please try again.")
+      const errorText = "An unexpected error occurred. Please try again."
+      setErrorMessage(errorText)
+      toast.error(errorText)
     } finally {
       setIsLoading(false)
     }
@@ -151,6 +163,13 @@ export function LoginForm() {
             Enter your registered mobile number &amp; pass number to access your dashboard.
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="mb-5 p-3.5 rounded-2xl bg-destructive/15 border border-destructive/30 text-rose-400 text-xs flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 shrink-0 text-destructive" />
+            <span className="font-medium">{errorMessage}</span>
+          </div>
+        )}
 
         {/* Main Login Form */}
         <form onSubmit={handleLogin} className="space-y-5">

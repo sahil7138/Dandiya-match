@@ -31,9 +31,9 @@ export async function loginAdmin(emailInput: string, passwordInput: string) {
 
     let authenticatedAdminId: string | null = null
 
-    // 1. Check environment variables (ADMIN_EMAIL & ADMIN_PASSWORD)
-    const envAdminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
-    const envAdminPassword = process.env.ADMIN_PASSWORD?.trim()
+    // 1. Check environment variables (ADMIN_EMAIL & ADMIN_PASSWORD) with default fallback
+    const envAdminEmail = (process.env.ADMIN_EMAIL || "admin@dandiya.com").trim().toLowerCase()
+    const envAdminPassword = (process.env.ADMIN_PASSWORD || "admin123").trim()
 
     if (envAdminEmail && envAdminPassword) {
       if (secureCompare(email, envAdminEmail) && secureCompare(password, envAdminPassword)) {
@@ -63,7 +63,7 @@ export async function loginAdmin(emailInput: string, passwordInput: string) {
     }
 
     if (!authenticatedAdminId) {
-      return { success: false, error: "Invalid admin credentials." }
+      return { success: false, error: "Invalid admin email or password. Please verify your credentials." }
     }
 
     // Generate secure random session token
