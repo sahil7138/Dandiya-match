@@ -19,7 +19,7 @@
   - 👥 **Bling Squad (₹1,149):** Entry for 4 • Group fast-track lane.
   - 👨‍👩‍👧‍👦 **Bling Gang (₹2,799):** Entry for 10 • Lowest per-person rate (₹280/p).
 - **Official UPI Payment Integration:**
-  - Official Google Pay UPI QR code image with 1-click UPI ID copy (`venkateshpuliraj035-2@okhdfcbank`).
+  - Official Google Pay UPI QR code image with 1-click UPI ID copy (`kashinathgaikwad305-3@oksbi`).
   - Seamless screenshot upload & instant verification workflow.
 - **Attendee Mobile & Pass Number Login:**
   - Secure pass holder authentication using registered 10-digit mobile number and official GBN Pass Number (e.g. `GBN-0001`).
@@ -48,7 +48,7 @@ dandiya-match/
 ├── public/
 │   ├── logo.png               # Official GENZ BLING NAVRATRI artwork
 │   ├── genz-bling-logo.png    # High-res festival logo
-│   ├── payment-qr.png         # Official Google Pay UPI QR Code (Venkatesh Puliraj)
+│   ├── payment-qr.png         # Official Google Pay UPI QR Code (Kashinath Gaikwad)
 │   ├── partners/              # Official organizer & tech partner brand assets
 │   └── Sponsores/             # Festival sponsors brand assets
 ├── src/

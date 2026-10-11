@@ -188,7 +188,7 @@ export function RegisterForm() {
   }
 
   const handleCopyUpi = () => {
-    navigator.clipboard.writeText("venkateshpuliraj035-2@okhdfcbank")
+    navigator.clipboard.writeText("kashinathgaikwad305-3@oksbi")
     setCopiedUpi(true)
     toast.success("UPI ID copied to clipboard!")
     setTimeout(() => setCopiedUpi(false), 2000)
@@ -735,7 +735,7 @@ export function RegisterForm() {
                 <div className="w-48 sm:w-52 bg-white p-2.5 rounded-2xl flex flex-col items-center justify-center shrink-0 shadow-2xl border-2 border-white/20">
                   <img
                     src="/payment-qr.png"
-                    alt="Payment QR Code - Venkatesh Puliraj"
+                    alt="Payment QR Code - Kashinath Gaikwad"
                     className="w-full h-auto object-contain rounded-xl"
                   />
                   <span className="text-[9px] font-bold tracking-tight text-zinc-800 mt-1 uppercase font-mono">
@@ -747,7 +747,7 @@ export function RegisterForm() {
                   <div>
                     <span className="text-xs text-zinc-400 block mb-1">UPI Recipient Name:</span>
                     <span className="text-sm font-bold text-white flex items-center gap-1.5 justify-center sm:justify-start">
-                      <Sparkles className="w-3.5 h-3.5 text-[#ffb800]" /> Venkatesh Puliraj
+                      <Sparkles className="w-3.5 h-3.5 text-[#ffb800]" /> Kashinath Gaikwad
                     </span>
                   </div>
 
@@ -755,7 +755,7 @@ export function RegisterForm() {
                     <span className="text-xs text-zinc-400 block mb-1">Official UPI ID (GPay / PhonePe / Paytm):</span>
                     <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
                       <code className="text-xs sm:text-sm font-mono font-bold text-[#ffb800] bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 break-all select-all">
-                        venkateshpuliraj035-2@okhdfcbank
+                        kashinathgaikwad305-3@oksbi
                       </code>
                       <Button
                         type="button"

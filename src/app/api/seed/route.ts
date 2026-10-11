@@ -48,8 +48,8 @@ export async function GET(request: Request) {
         venue: "The Grand Palace Grounds",
         eventDescription: "GenZ Bling Navratri is bringing together music, Garba, Dandiya, DJs and a premium festive experience.",
         contactNumber: "9876543210",
-        upiId: "venkateshpuliraj035-2@okhdfcbank",
-        upiRecipient: "Venkatesh Puliraj",
+        upiId: "kashinathgaikwad305-3@oksbi",
+        upiRecipient: "Kashinath Gaikwad",
         qrCodeUrl: "/payment-qr.png",
       }
     })
