@@ -50,7 +50,7 @@ export async function GET(request: Request) {
         contactNumber: "9876543210",
         upiId: "kashinathgaikwad305-3@oksbi",
         upiRecipient: "Kashinath Gaikwad",
-        qrCodeUrl: "/payment-qr.png",
+        qrCodeUrl: "/kashinath-qr.png",
       }
     })
 

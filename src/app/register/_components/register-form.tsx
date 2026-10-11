@@ -777,7 +777,7 @@ export function RegisterForm() {
                 {/* Official UPI QR Graphic */}
                 <div className="w-48 sm:w-52 bg-white p-2.5 rounded-2xl flex flex-col items-center justify-center shrink-0 shadow-2xl border-2 border-white/20">
                   <img
-                    src="/payment-qr.png"
+                    src="/kashinath-qr.png?v=2"
                     alt="Payment QR Code - Kashinath Gaikwad"
                     className="w-full h-auto object-contain rounded-xl"
                   />
