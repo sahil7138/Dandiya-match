@@ -4,7 +4,12 @@ import { prisma } from "@/lib/prisma"
 import { EventSettingsForm } from "./_components/event-settings-form"
 
 export default async function EventSettingsPage() {
-  const settings = await prisma.eventSettings.findFirst()
+  let settings = null
+  try {
+    settings = await prisma.eventSettings.findFirst()
+  } catch (err) {
+    console.error("Failed to load event settings:", err)
+  }
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

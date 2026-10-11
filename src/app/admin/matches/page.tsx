@@ -8,13 +8,19 @@ import Link from "next/link"
 import { ManageRevealModal } from "./_components/manage-reveal-modal"
 
 export default async function MatchesPage() {
-  const matches = await prisma.match.findMany({
-    include: {
-      participantA: true,
-      participantB: true
-    },
-    orderBy: { createdAt: 'desc' }
-  })
+  let matches: any[] = []
+
+  try {
+    matches = await prisma.match.findMany({
+      include: {
+        participantA: true,
+        participantB: true
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+  } catch (err) {
+    console.error("Failed to load matches:", err)
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">

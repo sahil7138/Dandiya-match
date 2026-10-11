@@ -4,14 +4,26 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import PaymentClient from "./_components/client"
 
 export default async function PaymentsPage() {
-  const pendingPayments = await prisma.payment.findMany({
-    where: { status: "PENDING" },
-    include: { registration: { include: { user: true } } },
-    orderBy: { createdAt: 'desc' }
-  })
+  let pendingPayments: any[] = []
+  let verifiedCount = 0
+  let rejectedCount = 0
 
-  const verifiedCount = await prisma.payment.count({ where: { status: "VERIFIED" } })
-  const rejectedCount = await prisma.payment.count({ where: { status: "REJECTED" } })
+  try {
+    const results = await Promise.all([
+      prisma.payment.findMany({
+        where: { status: "PENDING" },
+        include: { registration: { include: { user: true } } },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.payment.count({ where: { status: "VERIFIED" } }),
+      prisma.payment.count({ where: { status: "REJECTED" } })
+    ])
+    pendingPayments = results[0]
+    verifiedCount = results[1]
+    rejectedCount = results[2]
+  } catch (err) {
+    console.error("Failed to load payments data:", err)
+  }
   
   return (
     <div className="space-y-6 max-w-7xl mx-auto">

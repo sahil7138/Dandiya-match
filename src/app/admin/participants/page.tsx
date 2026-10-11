@@ -5,10 +5,16 @@ import { ParticipantsTable } from "./_components/participants-table"
 import type { ParticipantListItem } from "@/types"
 
 export default async function ParticipantsPage() {
-  const registrations = (await prisma.registration.findMany({
-    include: { user: true, payment: true },
-    orderBy: { createdAt: "desc" },
-  })) as unknown as ParticipantListItem[]
+  let registrations: ParticipantListItem[] = []
+
+  try {
+    registrations = (await prisma.registration.findMany({
+      include: { user: true, payment: true },
+      orderBy: { createdAt: "desc" },
+    })) as unknown as ParticipantListItem[]
+  } catch (err) {
+    console.error("Failed to load participants:", err)
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">

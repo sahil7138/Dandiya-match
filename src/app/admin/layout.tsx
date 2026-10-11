@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { logoutAdmin } from "@/actions/admin-auth"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn } from "cn"
 import { 
   LayoutDashboard, Users, CreditCard, Network, Dices, 
   Settings, ShieldAlert, LogOut, Menu, X, Bell 
@@ -23,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Event Settings", href: "/admin/event", icon: Settings },
   ]
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <>
       <div className="p-6 border-b flex items-center gap-2.5">
         <div className="w-9 h-9 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-0.5 shadow-md shadow-primary/20 shrink-0">
@@ -38,25 +39,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <span className="text-[10px] uppercase font-mono text-muted-foreground tracking-wider">Admin Control</span>
         </div>
       </div>
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`) && item.href !== "/admin"
+          const isActive = pathname === item.href || (pathname.startsWith(`${item.href}/`) && item.href !== "/admin")
           return (
-            <Link key={item.name} href={item.href} onClick={() => setIsMobileOpen(false)}>
-              <Button 
-                variant={isActive ? "secondary" : "ghost"} 
-                className={`w-full justify-start ${isActive ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.name}
-              </Button>
+            <Link
+              key={item.name}
+              href={item.href}
+              prefetch={true}
+              onClick={() => setIsMobileOpen(false)}
+              className={cn(
+                buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
+                "w-full justify-start cursor-pointer transition-all duration-150 h-9 px-3",
+                isActive 
+                  ? "bg-primary/15 text-primary font-bold hover:bg-primary/25 shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+              )}
+            >
+              <item.icon className="mr-3 h-5 w-5 shrink-0" />
+              {item.name}
             </Link>
           )
         })}
       </nav>
       <div className="p-4 border-t">
         <form action={logoutAdmin}>
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10">
+          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 cursor-pointer">
             <LogOut className="mr-3 h-5 w-5" />
             Logout
           </Button>
@@ -73,7 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen flex bg-muted/20">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 bg-card border-r flex-col h-screen sticky top-0">
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
 
       {/* Mobile Drawer */}
@@ -84,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => setIsMobileOpen(false)}>
               <X className="h-5 w-5" />
             </Button>
-            <SidebarContent />
+            {renderSidebarContent()}
           </aside>
         </div>
       )}

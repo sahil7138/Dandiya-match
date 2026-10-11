@@ -4,44 +4,56 @@ import { Card } from "@/components/ui/card"
 import MatchmakingClient from "./_components/client"
 
 export default async function MatchmakingAdminPage() {
-  const eligible = await prisma.user.count({
-    where: {
-      status: "ACTIVE",
-      registration: {
-        passType: "SINGLE",
-        paymentStatus: "VERIFIED",
-        matchmakingOptIn: true
-      }
-    }
-  })
+  let eligible = 0
+  let excluded = 0
+  let rounds: any[] = []
+  let matches: any[] = []
 
-  const excluded = await prisma.registration.count({
-    where: {
-      OR: [
-        { passType: { in: ["COUPLE", "GROUP"] } },
-        { matchmakingOptIn: false },
-        { paymentStatus: { not: "VERIFIED" } }
-      ]
-    }
-  })
-
-  const rounds = await prisma.matchmakingRound.findMany({
-    include: {
-      _count: {
-        select: { matches: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  })
-
-  const matches = await prisma.match.findMany({
-    take: 50,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      participantA: true,
-      participantB: true
-    }
-  })
+  try {
+    const results = await Promise.all([
+      prisma.user.count({
+        where: {
+          status: "ACTIVE",
+          registration: {
+            passType: "SINGLE",
+            paymentStatus: "VERIFIED",
+            matchmakingOptIn: true
+          }
+        }
+      }),
+      prisma.registration.count({
+        where: {
+          OR: [
+            { passType: { in: ["COUPLE", "GROUP"] } },
+            { matchmakingOptIn: false },
+            { paymentStatus: { not: "VERIFIED" } }
+          ]
+        }
+      }),
+      prisma.matchmakingRound.findMany({
+        include: {
+          _count: {
+            select: { matches: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.match.findMany({
+        take: 50,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          participantA: true,
+          participantB: true
+        }
+      })
+    ])
+    eligible = results[0]
+    excluded = results[1]
+    rounds = results[2]
+    matches = results[3]
+  } catch (err) {
+    console.error("Failed to load matchmaking data:", err)
+  }
 
   return (
     <div className="space-y-6">

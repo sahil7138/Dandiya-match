@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Users, CheckCircle, Clock, XCircle, Ticket, Heart, HeartOff, UserCheck, Dices, Eye, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import Link from "next/link"
 
 export default async function AdminDashboardPage() {
@@ -68,11 +68,21 @@ export default async function AdminDashboardPage() {
       
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">
-        <Link href="/admin/payments"><Button variant="outline" size="sm">View Pending Payments</Button></Link>
-        <Link href="/admin/matchmaking"><Button variant="outline" size="sm">View Match Pool</Button></Link>
-        <Link href="/admin/matchmaking"><Button size="sm">Generate Matches</Button></Link>
-        <Link href="/admin/matches"><Button variant="outline" size="sm">View Matches</Button></Link>
-        <Link href="/admin/event"><Button variant="outline" size="sm">Event Settings</Button></Link>
+        <Link href="/admin/payments" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          View Pending Payments
+        </Link>
+        <Link href="/admin/matchmaking" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          View Match Pool
+        </Link>
+        <Link href="/admin/matchmaking" className={buttonVariants({ size: "sm" })}>
+          Generate Matches
+        </Link>
+        <Link href="/admin/matches" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          View Matches
+        </Link>
+        <Link href="/admin/event" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          Event Settings
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -184,8 +194,8 @@ export default async function AdminDashboardPage() {
           <p className="text-muted-foreground mb-6 max-w-sm">
             Once matches are generated and locked, the 24-hour countdown for the reveal will appear here.
           </p>
-          <Link href="/admin/matchmaking">
-            <Button size="lg">Go to Matchmaking Engine</Button>
+          <Link href="/admin/matchmaking" className={buttonVariants({ size: "lg" })}>
+            Go to Matchmaking Engine
           </Link>
         </Card>
       </div>
