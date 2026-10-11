@@ -58,6 +58,12 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
               <p className="text-sm text-muted-foreground">GBN Number</p>
               <p className="font-mono font-medium text-lg">{reg.gbnNumber}</p>
             </div>
+            {reg.coordinatorPhone && (
+              <div>
+                <p className="text-sm text-muted-foreground">Coordinator (For Physical Pass)</p>
+                <p className="font-mono font-medium text-emerald-500">+91 {reg.coordinatorPhone}</p>
+              </div>
+            )}
             <div>
               <p className="text-sm text-muted-foreground">Pass Type</p>
               <Badge variant="outline">{reg.passType}</Badge>

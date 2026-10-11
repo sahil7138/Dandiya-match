@@ -67,6 +67,7 @@ export interface DashboardAttendeeData {
     partnerName?: string | null
     groupMembers?: { name?: string; phone?: string }[] | null
     rejectionReason?: string | null
+    coordinatorPhone?: string | null
   }
   match: AttendeeMatchData | null
 }
@@ -77,6 +78,7 @@ export interface ParticipantListItem {
   passType: PassTypeEnum
   paymentStatus: PaymentStatus
   matchmakingOptIn: boolean
+  coordinatorPhone?: string | null
   createdAt: Date | string
   user: {
     id: string

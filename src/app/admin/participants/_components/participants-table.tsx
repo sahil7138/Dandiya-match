@@ -95,8 +95,15 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
                   <div className="font-semibold text-foreground">{reg.user.name}</div>
                   <div className="text-xs text-muted-foreground font-mono">+91 {reg.user.phone}</div>
                 </td>
-                <td className="px-6 py-4 font-mono text-xs font-bold text-primary">
-                  {reg.gbnNumber}
+                <td className="px-6 py-4">
+                  <div className="font-mono text-xs font-bold text-primary">
+                    {reg.gbnNumber}
+                  </div>
+                  {reg.coordinatorPhone && (
+                    <div className="text-[10px] text-muted-foreground font-mono mt-0.5">
+                      Coord: +91 {reg.coordinatorPhone}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <Badge variant="outline">{reg.passType}</Badge>

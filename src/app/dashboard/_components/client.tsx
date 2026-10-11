@@ -141,6 +141,68 @@ export default function DashboardClient({ data }: { data: any }) {
             </div>
           </div>
 
+          {/* Physical Pass Collection Box */}
+          {data.registration.paymentStatus === "VERIFIED" ? (
+            <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-[#ffb800]/10 to-primary/10 border border-emerald-500/30 text-left space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 font-mono">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> PHYSICAL PASS COLLECTION
+                </span>
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  Approved &amp; Issued
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {/* Pass Number Box */}
+                <div className="p-3 rounded-xl bg-black/50 border border-white/10">
+                  <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
+                    <Ticket className="w-3 h-3 text-[#ffb800]" /> Pass Number (GBN)
+                  </span>
+                  <span className="text-xl font-black font-mono text-[#ffb800] mt-0.5 block tracking-wider">
+                    {data.registration.gbnNumber}
+                  </span>
+                </div>
+
+                {/* Coordinator Contact Box */}
+                <div className="p-3 rounded-xl bg-black/50 border border-white/10">
+                  <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-emerald-400" /> Coordinator Contact
+                  </span>
+                  {data.registration.coordinatorPhone ? (
+                    <a
+                      href={`tel:${data.registration.coordinatorPhone}`}
+                      className="text-base font-bold font-mono text-emerald-400 hover:underline flex items-center gap-1.5 mt-0.5"
+                    >
+                      <span>+91 {data.registration.coordinatorPhone}</span>
+                    </a>
+                  ) : (
+                    <span className="text-xs text-zinc-300 font-semibold mt-1 block">
+                      Available at Turf Helpdesk
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-white/10 flex items-start gap-2 text-[11px] text-zinc-300">
+                <Sparkles className="w-3.5 h-3.5 text-[#ffb800] shrink-0 mt-0.5" />
+                <span>
+                  Quote your Pass No (<strong className="text-white font-mono">{data.registration.gbnNumber}</strong>) to the Coordinator to collect your physical festival wristband.
+                </span>
+              </div>
+            </div>
+          ) : data.registration.paymentStatus === "PENDING" ? (
+            <div className="mb-6 p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-left flex items-start gap-3">
+              <Clock className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-yellow-300">Payment Under Admin Verification</p>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Your registration is under verification. Once approved, your confirmed Pass No (GBN) and designated Coordinator contact number will appear right here for physical wristband collection.
+                </p>
+              </div>
+            </div>
+          ) : null}
+
           {/* Barcode graphic effect */}
           <div className="pt-2 flex flex-col items-center">
             <div className="w-full h-8 bg-[repeating-linear-gradient(90deg,#fff,#fff_2px,transparent_2px,transparent_6px,#fff_6px,#fff_9px,transparent_9px,transparent_12px)] opacity-30 rounded mb-1" />
