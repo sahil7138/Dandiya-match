@@ -45,6 +45,7 @@ export interface AttendeePartnerInfo {
   age?: number | null
   experience?: string | null
   vibe?: string | null
+  instagramId?: string | null
 }
 
 export interface AttendeeMatchData {
@@ -58,6 +59,7 @@ export interface DashboardAttendeeData {
   user: {
     name: string
     phone: string
+    instagramId?: string | null
   }
   registration: {
     gbnNumber: string
@@ -68,6 +70,10 @@ export interface DashboardAttendeeData {
     groupMembers?: { name?: string; phone?: string }[] | null
     rejectionReason?: string | null
     coordinatorPhone?: string | null
+    instagramId?: string | null
+    dpdpConsent?: boolean
+    instagramShareConsent?: boolean
+    consentTimestamp?: Date | string | null
   }
   match: AttendeeMatchData | null
 }
@@ -79,11 +85,15 @@ export interface ParticipantListItem {
   paymentStatus: PaymentStatus
   matchmakingOptIn: boolean
   coordinatorPhone?: string | null
+  instagramId?: string | null
+  dpdpConsent?: boolean
+  instagramShareConsent?: boolean
   createdAt: Date | string
   user: {
     id: string
     name: string
     phone: string
+    instagramId?: string | null
     status: AccountStatus
   }
   payment?: {

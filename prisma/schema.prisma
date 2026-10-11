@@ -45,6 +45,7 @@ model User {
   name          String
   phone         String    @unique
   email         String?   @unique
+  instagramId   String?   // Instagram handle for match coordination
   passwordHash  String?
   role          Role      @default(USER)
   status        AccountStatus @default(ACTIVE)
@@ -71,19 +72,24 @@ model AdminUser {
 }
 
 model Registration {
-  id                  String       @id @default(cuid())
-  userId              String       @unique
-  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gbnNumber           String       @unique
-  passType            PassTypeEnum
-  paymentStatus       PaymentStatus @default(PENDING)
-  matchmakingOptIn    Boolean       @default(false)
-  partnerName         String?       // For COUPLE
-  partnerPhone        String?       // For COUPLE
-  groupMembers        Json?         // For GROUP [{name, phone}]
-  coordinatorPhone    String?       // Coordinator contact for physical pass collection
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  id                     String        @id @default(cuid())
+  userId                 String        @unique
+  user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gbnNumber              String        @unique
+  passType               PassTypeEnum
+  paymentStatus          PaymentStatus @default(PENDING)
+  matchmakingOptIn       Boolean       @default(false)
+  partnerName            String?       // For COUPLE
+  partnerPhone           String?       // For COUPLE
+  groupMembers           Json?         // For GROUP [{name, phone}]
+  coordinatorPhone       String?       // Coordinator contact for physical pass collection
+  instagramId            String?       // Instagram handle snapshot
+  dpdpConsent            Boolean       @default(false) // DPDP Act 2023 statutory data processing consent
+  instagramShareConsent  Boolean       @default(false) // DPDP Act 2023 consent to share handle with matched partner
+  consentTimestamp       DateTime?     // Exact timestamp of affirmative DPDP consent
+  consentVersion         String?       @default("DPDP-2023-V1")
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
 
   payment             Payment?
 }

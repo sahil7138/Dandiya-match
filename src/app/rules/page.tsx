@@ -26,8 +26,8 @@ export default function RulesPage() {
     },
     {
       num: "04",
-      title: "Privacy & Safe Community",
-      desc: "Phone numbers and personal contact information are NEVER publicly shared. You only see your partner's first name, age group, experience, and vibe. Exchange numbers only with mutual consent at the venue.",
+      title: "DPDP Act Privacy & Instagram Coordination",
+      desc: "In compliance with the Digital Personal Data Protection (DPDP) Act, 2023 of India, phone numbers are NEVER publicly disclosed. With explicit affirmative consent, only your Instagram handle is shared exclusively with your confirmed dance partner once unlocked to coordinate matching attire and turf meetup.",
       icon: ShieldCheck,
     },
     {

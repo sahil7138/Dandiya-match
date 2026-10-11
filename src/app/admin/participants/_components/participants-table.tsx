@@ -24,7 +24,9 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
         !q ||
         reg.user.name.toLowerCase().includes(q) ||
         reg.user.phone.includes(q) ||
-        reg.gbnNumber.toLowerCase().includes(q)
+        reg.gbnNumber.toLowerCase().includes(q) ||
+        reg.user.instagramId?.toLowerCase().includes(q) ||
+        reg.instagramId?.toLowerCase().includes(q)
 
       const matchesPass = passFilter === "ALL" || reg.passType === passFilter
       const matchesPayment = paymentFilter === "ALL" || reg.paymentStatus === paymentFilter
@@ -42,7 +44,7 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, phone, or GBN pass..."
+              placeholder="Search by name, phone, IG handle, or GBN pass..."
               className="h-9 text-sm"
             />
           </div>
@@ -94,6 +96,11 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
                 <td className="px-6 py-4">
                   <div className="font-semibold text-foreground">{reg.user.name}</div>
                   <div className="text-xs text-muted-foreground font-mono">+91 {reg.user.phone}</div>
+                  {(reg.user.instagramId || reg.instagramId) && (
+                    <div className="text-[11px] text-[#e1306c] font-mono mt-0.5 font-medium">
+                      @{((reg.user.instagramId || reg.instagramId) as string).replace(/^@+/, '')}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <div className="font-mono text-xs font-bold text-primary">

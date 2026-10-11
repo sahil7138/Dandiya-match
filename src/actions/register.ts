@@ -32,6 +32,11 @@ const registerSchema = z.object({
   experience: z.string().optional(),
   vibe: z.string().optional(),
 
+  // Social & Match coordination (DPDP Act 2023)
+  instagramId: z.string().optional(),
+  dpdpConsent: z.boolean().default(false),
+  instagramShareConsent: z.boolean().default(false),
+
   // Payment
   paymentScreenshotUrl: z.string().min(1, "Payment screenshot is required"),
   amount: z.number().min(1),
@@ -76,6 +81,24 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
       finalOptIn = false
     }
 
+    // DPDP Act 2023 Statutory Consent Validation
+    if (!validated.dpdpConsent) {
+      return { success: false, error: "DPDP Act consent is mandatory to process registration and issue event passes." }
+    }
+
+    // Clean and normalize Instagram Handle
+    const rawIg = validated.instagramId ? validated.instagramId.replace(/^@+/, '').trim() : null
+    if (finalOptIn && validated.passType === PassTypeEnum.SINGLE) {
+      if (!rawIg || rawIg.length < 2) {
+        return { success: false, error: "Please enter your Instagram ID so your matched dance partner can coordinate with you." }
+      }
+      if (!validated.instagramShareConsent) {
+        return { success: false, error: "Under the DPDP Act 2023, explicit consent is required to share your Instagram handle with your matched partner." }
+      }
+    }
+
+    const consentTimestamp = new Date()
+
     // Create everything in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create User
@@ -83,6 +106,7 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
         data: {
           name: validated.name,
           phone: validated.phone,
+          instagramId: rawIg,
         }
       })
 
@@ -131,6 +155,11 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
           partnerName: validated.partnerName,
           partnerPhone: validated.partnerPhone,
           groupMembers: groupMembers,
+          instagramId: rawIg,
+          dpdpConsent: Boolean(validated.dpdpConsent),
+          instagramShareConsent: finalOptIn ? Boolean(validated.instagramShareConsent) : false,
+          consentTimestamp: consentTimestamp,
+          consentVersion: "DPDP-2023-V1",
         }
       })
 

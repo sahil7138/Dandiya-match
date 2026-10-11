@@ -50,9 +50,19 @@ export default async function MatchesPage() {
                   <td className="px-6 py-4 font-mono text-xs">{match.id.substring(0, 8).toUpperCase()}</td>
                   <td className="px-6 py-4">
                     <div className="font-semibold">{match.participantA.name}</div>
+                    {match.participantA.instagramId && (
+                      <div className="text-xs text-[#e1306c] font-mono">
+                        @{match.participantA.instagramId.replace(/^@+/, '')}
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="font-semibold">{match.participantB.name}</div>
+                    {match.participantB.instagramId && (
+                      <div className="text-xs text-[#e1306c] font-mono">
+                        @{match.participantB.instagramId.replace(/^@+/, '')}
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <Badge variant={match.isLocked ? "default" : "outline"} className={match.isLocked ? "bg-amber-500 hover:bg-amber-600" : ""}>

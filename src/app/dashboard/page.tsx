@@ -69,6 +69,7 @@ async function getDashboardData() {
           age: partner.matchProfile?.age,
           experience: partner.matchProfile?.experience,
           vibe: partner.matchProfile?.vibe,
+          instagramId: partner.instagramId,
         } : null
       }
     }
@@ -78,6 +79,7 @@ async function getDashboardData() {
     user: {
       name: user.name,
       phone: user.phone,
+      instagramId: user.instagramId,
     },
     registration: {
       gbnNumber: user.registration.gbnNumber,
@@ -88,6 +90,10 @@ async function getDashboardData() {
       groupMembers: user.registration.groupMembers as any,
       rejectionReason: user.registration.payment?.rejectionReason,
       coordinatorPhone: user.registration.coordinatorPhone,
+      instagramId: user.registration.instagramId,
+      dpdpConsent: user.registration.dpdpConsent,
+      instagramShareConsent: user.registration.instagramShareConsent,
+      consentTimestamp: user.registration.consentTimestamp?.toISOString() ?? null,
     },
     match: matchData
   }

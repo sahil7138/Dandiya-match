@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button"
 import { logoutUser } from "@/actions/auth"
 import { 
   LogOut, Ticket, CreditCard, Lock, Sparkles, Clock, CheckCircle2, 
-  Loader2, CalendarDays, MapPin, Phone, MessageSquare, User, ShieldCheck, Heart
+  Loader2, CalendarDays, MapPin, Phone, MessageSquare, User, ShieldCheck, Heart,
+  Copy, ExternalLink
 } from "lucide-react"
+import { InstagramIcon } from "@/components/icons/instagram"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function DashboardClient({ data }: { data: any }) {
   const [timeLeft, setTimeLeft] = useState({ h: "00", m: "00", s: "00" })
@@ -118,7 +121,7 @@ export default function DashboardClient({ data }: { data: any }) {
           </div>
 
           {/* Pass Details Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
               <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
                 <Ticket className="w-3 h-3 text-primary" /> Pass Tier
@@ -133,11 +136,20 @@ export default function DashboardClient({ data }: { data: any }) {
               <p className="font-bold text-sm text-white mt-0.5">17 Oct 2026</p>
             </div>
 
-            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 col-span-2 sm:col-span-1">
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
               <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-primary" /> Venue
               </span>
               <p className="font-bold text-xs text-white mt-0.5 truncate">Noupark Turf, Narhe</p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
+                <InstagramIcon className="w-3 h-3 text-[#e1306c]" /> My Instagram
+              </span>
+              <p className="font-bold text-xs text-white mt-0.5 truncate font-mono">
+                {data.user.instagramId ? `@${data.user.instagramId.replace(/^@+/, '')}` : "Not Added"}
+              </p>
             </div>
           </div>
 
@@ -379,8 +391,10 @@ export default function DashboardClient({ data }: { data: any }) {
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="bg-white/5 p-2.5 rounded-xl">
-                        <span className="text-zinc-400 block text-[10px]">Age Group</span>
-                        <span className="font-semibold text-white">{data.match.partner.ageGroup}</span>
+                        <span className="text-zinc-400 block text-[10px]">Age</span>
+                        <span className="font-semibold text-white">
+                          {data.match.partner.age ? `${data.match.partner.age} years` : (data.match.partner.ageGroup || "N/A")}
+                        </span>
                       </div>
                       <div className="bg-white/5 p-2.5 rounded-xl">
                         <span className="text-zinc-400 block text-[10px]">Dance Experience</span>
@@ -392,6 +406,65 @@ export default function DashboardClient({ data }: { data: any }) {
                       <span className="text-zinc-400 block text-[10px]">Festival Vibe</span>
                       <span className="font-semibold text-[#ffb800]">✨ {data.match.partner.vibe}</span>
                     </div>
+
+                    {/* Partner Instagram Coordination Box (DPDP Act 2023 Compliant) */}
+                    {data.match.partner.instagramId ? (
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-[#833ab4]/15 via-[#fd1d1d]/10 to-[#fcb045]/15 border border-[#e1306c]/30 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase font-bold text-zinc-300 flex items-center gap-1.5">
+                            <InstagramIcon className="w-3.5 h-3.5 text-[#e1306c]" /> Partner Instagram ID
+                          </span>
+                          <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            DPDP Consented
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-black/60 border border-white/10">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <span className="text-sm font-mono font-bold text-white truncate">
+                              @{data.match.partner.instagramId.replace(/^@+/, '')}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const handle = data.match.partner.instagramId?.replace(/^@+/, '') || ""
+                                navigator.clipboard.writeText(handle)
+                                toast.success("Partner Instagram ID copied to clipboard!")
+                              }}
+                              className="h-8 px-2.5 text-xs text-zinc-300 hover:text-white"
+                            >
+                              <Copy className="w-3.5 h-3.5 mr-1" /> Copy
+                            </Button>
+
+                            <a
+                              href={`https://instagram.com/${data.match.partner.instagramId.replace(/^@+/, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button
+                                size="sm"
+                                className="h-8 px-3 rounded-lg bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-bold text-xs shadow-md shadow-[#e1306c]/20 hover:opacity-95"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5 mr-1" /> Message
+                              </Button>
+                            </a>
+                          </div>
+                        </div>
+
+                        <p className="text-[10px] text-zinc-400 leading-relaxed">
+                          Coordinate ahead! Connect on Instagram to plan matching traditional attire, song requests, and your meetup at Noupark Turf.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-400 flex items-center gap-2">
+                        <InstagramIcon className="w-4 h-4 text-zinc-500 shrink-0" />
+                        <span>Partner has not linked an Instagram ID. Connect with our Helpdesk at the venue.</span>
+                      </div>
+                    )}
 
                     <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-lg shadow-primary/30">
                       <Sparkles className="w-4 h-4 mr-2" /> Ready to Groove!

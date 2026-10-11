@@ -43,6 +43,12 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
               <p className="font-medium">{reg.user.email || "N/A"}</p>
             </div>
             <div>
+              <p className="text-sm text-muted-foreground">Instagram Handle</p>
+              <p className="font-mono font-medium text-[#e1306c]">
+                {reg.user.instagramId || reg.instagramId ? `@${(reg.user.instagramId || reg.instagramId)?.replace(/^@+/, '')}` : "Not Provided"}
+              </p>
+            </div>
+            <div>
               <p className="text-sm text-muted-foreground">Status</p>
               <Badge variant={reg.user.status === 'ACTIVE' ? 'default' : 'destructive'}>{reg.user.status}</Badge>
             </div>
@@ -68,6 +74,27 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
               <p className="text-sm text-muted-foreground">Pass Type</p>
               <Badge variant="outline">{reg.passType}</Badge>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">DPDP Act 2023 Statutory Consent</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <Badge variant={reg.dpdpConsent ? "default" : "destructive"} className={reg.dpdpConsent ? "bg-emerald-600 text-white" : ""}>
+                  {reg.dpdpConsent ? "CONSENT RECORDED" : "NOT RECORDED"}
+                </Badge>
+                {reg.consentTimestamp && (
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {new Date(reg.consentTimestamp).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+            {reg.matchmakingOptIn && (
+              <div>
+                <p className="text-sm text-muted-foreground">IG Match Sharing Consent</p>
+                <Badge variant={reg.instagramShareConsent ? "default" : "secondary"} className={reg.instagramShareConsent ? "bg-purple-600 text-white" : ""}>
+                  {reg.instagramShareConsent ? "MUTUAL SHARING AUTHORIZED" : "NOT AUTHORIZED"}
+                </Badge>
+              </div>
+            )}
             <div>
               <p className="text-sm text-muted-foreground">Registered At</p>
               <p className="font-medium">{new Date(reg.createdAt).toLocaleString()}</p>
