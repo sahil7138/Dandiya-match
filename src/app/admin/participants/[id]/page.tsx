@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { DeleteParticipantButton } from "./../_components/delete-participant-button"
 
 export default async function ParticipantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
@@ -18,14 +19,22 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center space-x-4">
-        <Link href="/admin/participants">
-          <Button variant="outline" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold font-outfit text-foreground tracking-tight">{reg.user.name}</h1>
-          <p className="text-muted-foreground mt-1">Registration ID: {reg.id}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-4">
+          <Link href="/admin/participants">
+            <Button variant="outline" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold font-outfit text-foreground tracking-tight">{reg.user.name}</h1>
+            <p className="text-muted-foreground mt-1">Registration ID: {reg.id}</p>
+          </div>
         </div>
+        <DeleteParticipantButton
+          registrationId={reg.id}
+          participantName={reg.user.name}
+          gbnNumber={reg.gbnNumber}
+          redirectAfterDelete={true}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
