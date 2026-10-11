@@ -2,9 +2,19 @@ import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { PassTypeEnum } from "@prisma/client"
 
+import crypto from "crypto"
+
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Security guard: Disable destructive seeding in production unless explicitly enabled
+  if (process.env.NODE_ENV === "production" && process.env.ENABLE_SEED !== "true") {
+    return NextResponse.json(
+      { success: false, error: "Database seeding is strictly disabled in production." },
+      { status: 403 }
+    )
+  }
+
   try {
     // Clear all existing data
     await prisma.match.deleteMany()
@@ -16,12 +26,15 @@ export async function GET() {
     await prisma.adminUser.deleteMany()
     await prisma.eventSettings.deleteMany()
 
-    // Create Admin
+    // Create Admin with hashed password from env or secure random hash
+    const adminPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(16).toString("hex")
+    const adminHash = crypto.createHash("sha256").update(adminPassword).digest("hex")
+
     await prisma.adminUser.create({
       data: {
         name: "Super Admin",
-        email: "admin@dandiya.com",
-        passwordHash: "admin123", // Fake hash for demo
+        email: process.env.ADMIN_EMAIL || "admin@dandiyamatch.internal",
+        passwordHash: adminHash,
         role: "SUPER_ADMIN"
       }
     })

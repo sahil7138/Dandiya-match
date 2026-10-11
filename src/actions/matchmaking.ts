@@ -2,8 +2,15 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
 
 export async function generateMatches() {
+  const cookieStore = await cookies()
+  const isAdmin = cookieStore.get("admin_session")?.value
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized: Admin privileges required." }
+  }
+
   try {
     // 1. Get eligible participants with their match profiles
     const eligible = await prisma.user.findMany({
@@ -109,6 +116,12 @@ export async function generateMatches() {
 }
 
 export async function updateRevealTime(newTime: Date) {
+  const cookieStore = await cookies()
+  const isAdmin = cookieStore.get("admin_session")?.value
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized: Admin privileges required." }
+  }
+
   try {
     await prisma.$transaction([
       prisma.matchmakingRound.updateMany({

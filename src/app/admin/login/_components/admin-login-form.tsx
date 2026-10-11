@@ -67,7 +67,7 @@ export function AdminLoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="admin@dandiya.com"
+              placeholder="admin@yourdomain.com"
               className="h-11 text-sm font-mono"
             />
           </div>
@@ -83,14 +83,9 @@ export function AdminLoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="••••••••••••"
-              className="h-11 text-sm font-mono"
+              placeholder="Enter your password"
+              className="h-11 text-sm"
             />
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-muted/40 text-[11px] text-muted-foreground flex items-center justify-between">
-            <span>Demo: <code className="text-foreground font-mono">admin@dandiya.com</code></span>
-            <span>Pass: <code className="text-foreground font-mono">admin123</code></span>
           </div>
 
           <Button

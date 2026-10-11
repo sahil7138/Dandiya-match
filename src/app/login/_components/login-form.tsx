@@ -311,25 +311,6 @@ export function LoginForm() {
           </Button>
         </form>
 
-        {/* Demo Helper Banner */}
-        <div className="mt-6 p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-zinc-400 flex items-center justify-between">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Demo: Mobile <strong className="text-zinc-200 font-mono">9000000001</strong></span>
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setPhone("9000000001")
-              setShowLookup(true)
-              setLookupPhoneInput("9000000001")
-            }}
-            className="text-xs text-[#ffb800] font-bold hover:underline"
-          >
-            Auto-fill
-          </button>
-        </div>
-
         {/* Registration CTA */}
         <div className="mt-6 pt-5 border-t border-white/10 text-center">
           <p className="text-xs text-zinc-400">
