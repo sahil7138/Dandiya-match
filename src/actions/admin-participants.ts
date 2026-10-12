@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
+import { createDatabaseBackup } from "@/lib/backup"
 
 /**
  * Delete a single participant registration and associated records.
@@ -26,6 +27,13 @@ export async function deleteParticipant(registrationId: string) {
 
     if (!registration) {
       return { success: false, error: "Participant entry not found." }
+    }
+
+    // Statutory safety & disaster recovery: take automatic snapshot before deletion
+    try {
+      await createDatabaseBackup()
+    } catch (backupErr) {
+      console.warn("Pre-deletion backup warning:", backupErr)
     }
 
     const userId = registration.userId
@@ -72,6 +80,7 @@ export async function deleteParticipant(registrationId: string) {
     revalidatePath("/admin/payments")
     revalidatePath("/admin/matchmaking")
     revalidatePath("/admin/matches")
+    revalidatePath("/admin/backup")
     revalidatePath("/admin")
 
     return {
@@ -113,6 +122,13 @@ export async function bulkDeleteParticipants(registrationIds: string[]) {
 
     const validRegIds = registrations.map((r) => r.id)
     const validUserIds = registrations.map((r) => r.userId)
+
+    // Statutory safety & disaster recovery: take automatic snapshot before bulk deletion
+    try {
+      await createDatabaseBackup()
+    } catch (backupErr) {
+      console.warn("Pre-bulk-deletion backup warning:", backupErr)
+    }
 
     await prisma.$transaction(async (tx) => {
       // 1. Clear any payment verifiedBy references
@@ -156,6 +172,7 @@ export async function bulkDeleteParticipants(registrationIds: string[]) {
     revalidatePath("/admin/payments")
     revalidatePath("/admin/matchmaking")
     revalidatePath("/admin/matches")
+    revalidatePath("/admin/backup")
     revalidatePath("/admin")
 
     return {

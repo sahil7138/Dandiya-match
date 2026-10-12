@@ -80,6 +80,9 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/matches" className={buttonVariants({ variant: "outline", size: "sm" })}>
           View Matches
         </Link>
+        <Link href="/admin/backup" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          Backup & Sync
+        </Link>
         <Link href="/admin/event" className={buttonVariants({ variant: "outline", size: "sm" })}>
           Event Settings
         </Link>

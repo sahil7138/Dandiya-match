@@ -8,7 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "cn"
 import { 
   LayoutDashboard, Users, CreditCard, Network, Dices, 
-  Settings, ShieldAlert, LogOut, Menu, X, Bell 
+  Settings, ShieldAlert, LogOut, Menu, X, Bell, Database 
 } from "lucide-react"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -21,6 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Payments", href: "/admin/payments", icon: CreditCard },
     { name: "Matchmaking", href: "/admin/matchmaking", icon: Network },
     { name: "Matches", href: "/admin/matches", icon: Dices },
+    { name: "Backup & Sync", href: "/admin/backup", icon: Database },
     { name: "Event Settings", href: "/admin/event", icon: Settings },
   ]
 
