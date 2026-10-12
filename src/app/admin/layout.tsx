@@ -8,12 +8,24 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "cn"
 import { 
   LayoutDashboard, Users, CreditCard, Network, Dices, 
-  Settings, ShieldAlert, LogOut, Menu, X, Bell, Database 
+  Settings, ShieldAlert, LogOut, Menu, X, Bell, Database, Loader2 
 } from "lucide-react"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleLogout = async (e?: React.MouseEvent | React.FormEvent) => {
+    if (e) e.preventDefault()
+    setIsLoggingOut(true)
+    try {
+      await fetch("/api/admin/logout", { method: "POST" })
+    } catch (err) {
+      console.error("Logout error:", err)
+    }
+    window.location.href = "/admin/login"
+  }
   
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -64,12 +76,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         })}
       </nav>
       <div className="p-4 border-t">
-        <form action={logoutAdmin}>
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 cursor-pointer">
+        <Button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
+        >
+          {isLoggingOut ? (
+            <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+          ) : (
             <LogOut className="mr-3 h-5 w-5" />
-            Logout
-          </Button>
-        </form>
+          )}
+          {isLoggingOut ? "Logging out..." : "Logout"}
+        </Button>
       </div>
     </>
   )
@@ -109,7 +129,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Can add breadcrumbs or search here */}
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-primary" />
@@ -117,6 +137,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
               AD
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="text-xs gap-1.5 text-muted-foreground hover:text-red-500 hover:border-red-500/30 cursor-pointer h-8 px-2.5"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <LogOut className="h-3.5 w-3.5" />
+              )}
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
           </div>
         </header>
 

@@ -86,6 +86,14 @@ export async function loginAdmin(emailInput: string, passwordInput: string) {
 
 export async function logoutAdmin() {
   const cookieStore = await cookies()
+  cookieStore.set("admin_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    expires: new Date(0),
+    sameSite: "lax",
+    path: "/",
+  })
   cookieStore.delete("admin_session")
   redirect("/admin/login")
 }
