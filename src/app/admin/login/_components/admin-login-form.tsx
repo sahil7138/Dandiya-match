@@ -57,8 +57,8 @@ export function AdminLoginForm() {
   }
 
   const fillDefaultCredentials = () => {
-    setEmail("admin@dandiya.com")
-    setPassword("admin123")
+    setEmail("rccindia@webworksstudios.com")
+    setPassword("WebAdminK@12")
     setErrorMessage(null)
     toast.info("Organizer credentials filled!")
   }
@@ -105,7 +105,7 @@ export function AdminLoginForm() {
                 if (errorMessage) setErrorMessage(null)
               }}
               required
-              placeholder="admin@dandiya.com"
+              placeholder="rccindia@webworksstudios.com"
               className="h-11 text-sm font-mono"
             />
           </div>
@@ -150,7 +150,7 @@ export function AdminLoginForm() {
               className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-primary transition-colors cursor-pointer"
             >
               <KeyRound className="w-3 h-3" />
-              Fill Organizer Credentials (admin@dandiya.com)
+              Fill Organizer Credentials (rccindia@webworksstudios.com)
             </button>
           </div>
         </form>

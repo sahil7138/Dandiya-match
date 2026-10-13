@@ -31,34 +31,34 @@ export async function loginAdmin(emailInput: string, passwordInput: string) {
 
     let authenticatedAdminId: string | null = null
 
-    // 1. Check environment variables (ADMIN_EMAIL & ADMIN_PASSWORD) with default fallback
-    const envAdminEmail = (process.env.ADMIN_EMAIL || "admin@dandiya.com").trim().toLowerCase()
-    const envAdminPassword = (process.env.ADMIN_PASSWORD || "admin123").trim()
+    // 1. Check database AdminUser FIRST (so password updates take immediate effect)
+    try {
+      const adminUser = await prisma.adminUser.findUnique({
+        where: { email },
+      })
 
-    if (envAdminEmail && envAdminPassword) {
-      if (secureCompare(email, envAdminEmail) && secureCompare(password, envAdminPassword)) {
-        authenticatedAdminId = "env-admin"
+      if (adminUser) {
+        const hashedInput = hashPassword(password)
+        const isHashedMatch = secureCompare(hashedInput, adminUser.passwordHash)
+        const isDirectMatch = secureCompare(password, adminUser.passwordHash)
+
+        if (isHashedMatch || isDirectMatch) {
+          authenticatedAdminId = adminUser.id
+        }
       }
+    } catch (dbErr) {
+      console.error("Admin DB lookup error:", dbErr)
     }
 
-    // 2. If not matched via env, check database AdminUser
+    // 2. If not matched via DB, check environment variables with fallback to new organizer credentials
     if (!authenticatedAdminId) {
-      try {
-        const adminUser = await prisma.adminUser.findUnique({
-          where: { email },
-        })
+      const envAdminEmail = (process.env.ADMIN_EMAIL || "rccindia@webworksstudios.com").trim().toLowerCase()
+      const envAdminPassword = (process.env.ADMIN_PASSWORD || "WebAdminK@12").trim()
 
-        if (adminUser) {
-          const hashedInput = hashPassword(password)
-          const isHashedMatch = secureCompare(hashedInput, adminUser.passwordHash)
-          const isDirectMatch = secureCompare(password, adminUser.passwordHash)
-
-          if (isHashedMatch || isDirectMatch) {
-            authenticatedAdminId = adminUser.id
-          }
+      if (envAdminEmail && envAdminPassword) {
+        if (secureCompare(email, envAdminEmail) && secureCompare(password, envAdminPassword)) {
+          authenticatedAdminId = "env-admin"
         }
-      } catch (dbErr) {
-        console.error("Admin DB lookup error:", dbErr)
       }
     }
 
@@ -81,6 +81,157 @@ export async function loginAdmin(emailInput: string, passwordInput: string) {
   } catch (error) {
     console.error("Admin login error:", error)
     return { success: false, error: "An unexpected authentication error occurred." }
+  }
+}
+
+/**
+ * Changes admin password with verification and statutory audit logging.
+ */
+export async function changeAdminPassword(formData: {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}): Promise<{
+  success: boolean
+  error?: string
+  message?: string
+}> {
+  const cookieStore = await cookies()
+  const isAdmin = cookieStore.get("admin_session")?.value
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized: Admin session required." }
+  }
+
+  const { currentPassword, newPassword, confirmPassword } = formData
+
+  if (!currentPassword?.trim() || !newPassword?.trim() || !confirmPassword?.trim()) {
+    return { success: false, error: "All password fields are required." }
+  }
+
+  if (newPassword.trim().length < 8) {
+    return { success: false, error: "New password must be at least 8 characters long." }
+  }
+
+  if (newPassword.trim() !== confirmPassword.trim()) {
+    return { success: false, error: "New password and confirmation password do not match." }
+  }
+
+  try {
+    const adminEmail = (process.env.ADMIN_EMAIL || "rccindia@webworksstudios.com").trim().toLowerCase()
+    const envPassword = (process.env.ADMIN_PASSWORD || "WebAdminK@12").trim()
+
+    // 1. Fetch current admin from DB
+    const adminUser = await prisma.adminUser.findFirst({
+      where: {
+        OR: [
+          { email: adminEmail },
+          { role: "SUPER_ADMIN" },
+          { role: "ADMIN" }
+        ]
+      }
+    })
+
+    let isCurrentValid = false
+
+    if (adminUser) {
+      const hashedCurrent = hashPassword(currentPassword.trim())
+      const isHashMatch = secureCompare(hashedCurrent, adminUser.passwordHash)
+      const isDirectMatch = secureCompare(currentPassword.trim(), adminUser.passwordHash)
+      if (isHashMatch || isDirectMatch) {
+        isCurrentValid = true
+      }
+    }
+
+    // Also check against env password if not matched in DB
+    if (!isCurrentValid && envPassword) {
+      if (secureCompare(currentPassword.trim(), envPassword)) {
+        isCurrentValid = true
+      }
+    }
+
+    if (!isCurrentValid) {
+      return { success: false, error: "Current password is incorrect." }
+    }
+
+    // 2. Hash new password and update in DB
+    const newPasswordHash = hashPassword(newPassword.trim())
+
+    if (adminUser) {
+      await prisma.adminUser.update({
+        where: { id: adminUser.id },
+        data: {
+          passwordHash: newPasswordHash,
+          updatedAt: new Date()
+        }
+      })
+    } else {
+      await prisma.adminUser.create({
+        data: {
+          name: "RCC Super Admin",
+          email: adminEmail,
+          passwordHash: newPasswordHash,
+          role: "SUPER_ADMIN"
+        }
+      })
+    }
+
+    // 3. Log audit event
+    try {
+      await prisma.auditLog.create({
+        data: {
+          adminId: adminUser?.id || "ADMIN",
+          action: "ADMIN_PASSWORD_CHANGED",
+          entityType: "ADMIN_USER",
+          entityId: adminEmail,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            ip: "ADMIN_PORTAL"
+          }
+        }
+      })
+    } catch (auditErr) {
+      console.warn("Audit log warning on password change:", auditErr)
+    }
+
+    return {
+      success: true,
+      message: "Password changed successfully! Please use your new password for future logins."
+    }
+  } catch (err: any) {
+    console.error("Change password error:", err)
+    return { success: false, error: err?.message || "Failed to update password." }
+  }
+}
+
+/**
+ * Returns current logged-in admin identity
+ */
+export async function getAdminProfile() {
+  const cookieStore = await cookies()
+  const isAdmin = cookieStore.get("admin_session")?.value
+  if (!isAdmin) return null
+
+  const adminEmail = (process.env.ADMIN_EMAIL || "rccindia@webworksstudios.com").trim().toLowerCase()
+  try {
+    const admin = await prisma.adminUser.findFirst({
+      where: {
+        OR: [
+          { email: adminEmail },
+          { role: "SUPER_ADMIN" },
+          { role: "ADMIN" }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        updatedAt: true
+      }
+    })
+    return admin || { email: adminEmail, name: "RCC Super Admin", role: "SUPER_ADMIN" }
+  } catch {
+    return { email: adminEmail, name: "RCC Super Admin", role: "SUPER_ADMIN" }
   }
 }
 

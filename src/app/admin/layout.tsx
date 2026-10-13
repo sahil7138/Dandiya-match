@@ -8,8 +8,9 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "cn"
 import { 
   LayoutDashboard, Users, CreditCard, Network, Dices, 
-  Settings, ShieldAlert, LogOut, Menu, X, Bell, Database, Loader2 
+  Settings, ShieldAlert, LogOut, Menu, X, Bell, Database, Loader2, KeyRound 
 } from "lucide-react"
+import { ChangePasswordModal } from "./_components/change-password-modal"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -75,18 +76,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )
         })}
       </nav>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-1.5">
+        <ChangePasswordModal
+          trigger={
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-white/5 cursor-pointer h-9 px-3 text-xs"
+            >
+              <KeyRound className="mr-3 h-4 w-4 text-primary shrink-0" />
+              Change Password
+            </Button>
+          }
+        />
         <Button
           type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
           variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
+          className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 cursor-pointer h-9 px-3 text-xs"
         >
           {isLoggingOut ? (
-            <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+            <Loader2 className="mr-3 h-4 w-4 animate-spin" />
           ) : (
-            <LogOut className="mr-3 h-5 w-5" />
+            <LogOut className="mr-3 h-4 w-4" />
           )}
           {isLoggingOut ? "Logging out..." : "Logout"}
         </Button>
@@ -129,14 +142,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Can add breadcrumbs or search here */}
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-primary" />
             </Button>
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-              AD
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-muted/40 border text-xs">
+              <div className="h-6 w-6 rounded-md bg-primary/15 flex items-center justify-center text-primary font-bold text-xs">
+                AD
+              </div>
+              <span className="font-mono text-muted-foreground hidden md:inline text-[11px]">
+                rccindia@webworksstudios.com
+              </span>
             </div>
+            <ChangePasswordModal />
             <Button
               type="button"
               variant="outline"
