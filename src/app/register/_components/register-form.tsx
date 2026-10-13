@@ -127,6 +127,14 @@ export function RegisterForm() {
     }
   }, [initialPassParam, form])
 
+  useEffect(() => {
+    // Keep user aligned at the top of the registration form when moving between steps
+    const formCard = document.getElementById("register-form-card")
+    if (formCard) {
+      formCard.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }, [step])
+
   const watchPassType = form.watch("passType")
   const watchOptIn = form.watch("matchmakingOptIn")
   const watchInstagramId = form.watch("instagramId")
@@ -287,37 +295,37 @@ export function RegisterForm() {
   }
 
   return (
-    <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 md:py-16">
+    <main className="flex-1 max-w-4xl w-full mx-auto px-3.5 sm:px-6 py-6 sm:py-10 md:py-14">
       {/* Header */}
-      <div className="text-center mb-10">
-        <div className="w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden bg-black/60 border border-white/10 p-1.5 shadow-xl shadow-primary/20">
+      <div className="text-center mb-6 sm:mb-10">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4 rounded-2xl overflow-hidden bg-black/60 border border-white/10 p-1.5 shadow-xl shadow-primary/20">
           <img
             src="/logo.png"
             alt="GENZ BLING NAVRATRI 2026"
             className="w-full h-full object-contain"
           />
         </div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill border border-white/10 text-xs font-bold text-[#ffb800] uppercase tracking-wider mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill border border-white/10 text-[11px] sm:text-xs font-bold text-[#ffb800] uppercase tracking-wider mb-2.5 sm:mb-3">
           <Sparkles className="w-3.5 h-3.5 text-primary" /> GENZ BLING 2026 REGISTRATION
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black font-outfit text-white mb-3">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black font-outfit text-white mb-2 sm:mb-3">
           Secure Your Navratri Pass
         </h1>
-        <p className="text-zinc-400 text-sm sm:text-base max-w-lg mx-auto">
+        <p className="text-zinc-400 text-xs sm:text-base max-w-lg mx-auto">
           17th October 2026 • Noupark Turf, Narhe, Pune
         </p>
       </div>
 
       {/* Multi-step progress bar */}
-      <div className="flex items-center justify-center gap-3 mb-10 max-w-md mx-auto">
+      <div className="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-10 max-w-md mx-auto px-2">
         {[
           { num: 1, label: "Pass & Info" },
           { num: 2, label: "Vibe / Match" },
           { num: 3, label: "Payment" },
         ].map((s) => (
-          <div key={s.num} className="flex-1 flex items-center gap-2">
+          <div key={s.num} className="flex-1 flex items-center gap-1.5 sm:gap-2">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
                 step === s.num
                   ? "bg-primary text-white shadow-lg shadow-primary/40 ring-2 ring-primary/40"
                   : step > s.num
@@ -325,9 +333,9 @@ export function RegisterForm() {
                   : "bg-white/10 text-zinc-400"
               }`}
             >
-              {step > s.num ? <Check className="w-4 h-4" /> : s.num}
+              {step > s.num ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : s.num}
             </div>
-            <span className={`text-xs font-medium hidden sm:inline ${step === s.num ? "text-white font-bold" : "text-zinc-500"}`}>
+            <span className={`text-[11px] sm:text-xs font-medium hidden sm:inline ${step === s.num ? "text-white font-bold" : "text-zinc-500"}`}>
               {s.label}
             </span>
             {s.num < 3 && <div className="flex-1 h-[2px] bg-white/10" />}
@@ -336,7 +344,7 @@ export function RegisterForm() {
       </div>
 
       {/* Step Form Container */}
-      <div className="glass-card rounded-[2rem] p-6 sm:p-10 border border-white/10 shadow-2xl relative">
+      <div id="register-form-card" className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-8 md:p-10 border border-white/10 shadow-2xl relative scroll-mt-24">
         
         {/* STEP 1: Pass & Personal Info */}
         {step === 1 && (
@@ -535,7 +543,7 @@ export function RegisterForm() {
               <Button
                 type="button"
                 onClick={handleNext}
-                className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold"
+                className="w-full sm:w-auto h-11 sm:h-12 px-6 sm:px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-xs sm:text-sm shadow-lg shadow-primary/25 hover:opacity-95 cursor-pointer justify-center"
               >
                 Continue to Next Step <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
@@ -545,17 +553,17 @@ export function RegisterForm() {
 
         {/* STEP 2: Vibe & Matchmaking */}
         {step === 2 && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 sm:space-y-8">
             {watchPassType === PassTypeEnum.SINGLE ? (
               <>
                 {/* Matchmaking Opt-In Toggle */}
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-[#8b5cf6]/10 to-transparent border border-primary/30 flex items-start gap-4">
-                  <div className="p-2.5 rounded-xl bg-primary/20 text-primary shrink-0 mt-0.5">
-                    <Sparkles className="w-6 h-6" />
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-[#8b5cf6]/10 to-transparent border border-primary/30 flex items-start gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-primary/20 text-primary shrink-0 mt-0.5">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between items-center mb-1">
-                      <h3 className="font-bold text-base text-white">Join Secret Dandiya Match Pool</h3>
+                      <h3 className="font-bold text-sm sm:text-base text-white">Join Secret Dandiya Match Pool</h3>
                       <input
                         type="checkbox"
                         checked={watchOptIn}
@@ -570,19 +578,19 @@ export function RegisterForm() {
                 </div>
 
                 {watchOptIn && (
-                  <div className="space-y-6 pt-2">
+                  <div className="space-y-5 sm:space-y-6 pt-1 sm:pt-2">
                     {/* My Gender */}
                     <div>
                       <Label className="text-xs font-bold text-zinc-300 mb-2 block">
                         I Identify As:
                       </Label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-3 gap-2 sm:gap-3">
                         {["Male", "Female", "Other"].map((g) => (
                           <button
                             key={g}
                             type="button"
                             onClick={() => form.setValue("gender", g)}
-                            className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
+                            className={`py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl border text-xs sm:text-sm font-semibold transition-all ${
                               form.watch("gender") === g
                                 ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
                                 : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
@@ -599,13 +607,13 @@ export function RegisterForm() {
                       <Label className="text-xs font-bold text-zinc-300 mb-2 block">
                         Preferred Partner Gender:
                       </Label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-3 gap-2 sm:gap-3">
                         {["Female", "Male", "Any / Open to All"].map((pg) => (
                           <button
                             key={pg}
                             type="button"
                             onClick={() => form.setValue("preferredGender", pg)}
-                            className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
+                            className={`py-2.5 sm:py-3 px-1.5 sm:px-4 rounded-xl border text-xs sm:text-sm font-semibold transition-all ${
                               form.watch("preferredGender") === pg
                                 ? "bg-[#ffb800] text-black border-[#ffb800] shadow-md shadow-[#ffb800]/20 font-bold"
                                 : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
@@ -629,7 +637,7 @@ export function RegisterForm() {
                         id="age"
                         type="number"
                         {...form.register("age", { valueAsNumber: true })}
-                        className="bg-black/40 border-white/10 h-12 w-full sm:w-1/2 rounded-xl text-white px-3 focus:border-primary border outline-none"
+                        className="bg-black/40 border-white/10 h-11 sm:h-12 w-full sm:w-1/2 rounded-xl text-white px-3 focus:border-primary border outline-none text-sm"
                         min="16"
                         max="100"
                       />
@@ -643,7 +651,7 @@ export function RegisterForm() {
                       <Label className="text-xs font-bold text-zinc-300 mb-2 block">
                         Dandiya / Garba Experience Level:
                       </Label>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
                         {[
                           { id: "Beginner (Need a teacher!)", label: "🌱 Beginner" },
                           { id: "Casual (Can do 2-Taali)", label: "💃 Casual Groover" },
@@ -653,9 +661,9 @@ export function RegisterForm() {
                             key={exp.id}
                             type="button"
                             onClick={() => form.setValue("experience", exp.id)}
-                            className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all ${
+                            className={`p-3 rounded-xl border text-left text-xs sm:text-sm font-semibold transition-all ${
                               form.watch("experience") === exp.id
-                                ? "bg-primary/20 text-white border-primary"
+                                ? "bg-primary/20 text-white border-primary shadow-sm"
                                 : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
                             }`}
                           >
@@ -670,7 +678,7 @@ export function RegisterForm() {
                       <Label className="text-xs font-bold text-zinc-300 mb-2 block">
                         Your Festival Vibe:
                       </Label>
-                      <div className="grid grid-cols-2 gap-2.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
                         {[
                           "Energetic & Fast Beats",
                           "Chill & Friendly",
@@ -681,9 +689,9 @@ export function RegisterForm() {
                             key={v}
                             type="button"
                             onClick={() => form.setValue("vibe", v)}
-                            className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all ${
+                            className={`p-3 rounded-xl border text-left text-xs sm:text-sm font-semibold transition-all ${
                               form.watch("vibe") === v
-                                ? "bg-[#8b5cf6]/20 text-white border-[#8b5cf6]"
+                                ? "bg-[#8b5cf6]/20 text-white border-[#8b5cf6] shadow-sm"
                                 : "bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10"
                             }`}
                           >
@@ -694,14 +702,14 @@ export function RegisterForm() {
                     </div>
 
                     {/* Instagram Handle Match Notice */}
-                    <div className="p-4 rounded-2xl bg-black/40 border border-[#e1306c]/30 flex items-start gap-3.5">
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-black/40 border border-[#e1306c]/30 flex items-start gap-3 sm:gap-3.5">
                       <div className="p-2 rounded-xl bg-[#e1306c]/10 text-[#e1306c] shrink-0 mt-0.5">
                         <InstagramIcon className="w-5 h-5" />
                       </div>
-                      <div className="space-y-1 text-left flex-1">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="space-y-1 text-left flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-1.5">
                           <span className="text-xs font-bold text-white">Partner Instagram Coordination</span>
-                          <span className="text-xs font-mono font-bold text-[#e1306c] bg-[#e1306c]/10 px-2.5 py-0.5 rounded-full border border-[#e1306c]/30">
+                          <span className="text-xs font-mono font-bold text-[#e1306c] bg-[#e1306c]/10 px-2 py-0.5 rounded-full border border-[#e1306c]/30 truncate max-w-[150px] sm:max-w-none">
                             @{watchInstagramId ? watchInstagramId.replace(/^@+/, '') : "your_handle"}
                           </span>
                         </div>
@@ -714,11 +722,11 @@ export function RegisterForm() {
                 )}
               </>
             ) : (
-              <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-3">
+              <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-3">
                 <div className="w-12 h-12 mx-auto rounded-full bg-[#ffb800]/20 text-[#ffb800] flex items-center justify-center text-xl">
                   👥
                 </div>
-                <h3 className="font-bold text-lg text-white">Group / Duo Entry Confirmed</h3>
+                <h3 className="font-bold text-base sm:text-lg text-white">Group / Duo Entry Confirmed</h3>
                 <p className="text-xs text-zinc-400 max-w-sm mx-auto">
                   You have selected a {passPriceMap[watchPassType].name}. Matchmaking is exclusively designed for solo attendees. You and your crew will receive direct access to the turf!
                 </p>
@@ -726,19 +734,19 @@ export function RegisterForm() {
             )}
 
             {/* Navigation buttons */}
-            <div className="pt-6 flex justify-between">
+            <div className="pt-6 flex items-center justify-between gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setStep(1)}
-                className="h-12 px-6 rounded-xl border-white/10 text-zinc-300 hover:bg-white/5"
+                className="h-11 sm:h-12 px-4 sm:px-6 rounded-xl border-white/10 text-zinc-300 hover:bg-white/5 text-xs sm:text-sm font-semibold cursor-pointer shrink-0"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" /> Back
               </Button>
               <Button
                 type="button"
                 onClick={handleNext}
-                className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold"
+                className="h-11 sm:h-12 px-5 sm:px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-xs sm:text-sm shadow-lg shadow-primary/25 hover:opacity-95 cursor-pointer flex-1 sm:flex-initial justify-center"
               >
                 Proceed to Payment <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
@@ -957,13 +965,13 @@ export function RegisterForm() {
             </div>
 
             {/* Submit Button */}
-            <div className="pt-4 flex justify-between items-center">
+            <div className="pt-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setStep(2)}
                 disabled={isSubmitting}
-                className="h-12 px-6 rounded-xl border-white/10 text-zinc-300 hover:bg-white/5"
+                className="h-11 sm:h-12 px-5 sm:px-6 rounded-xl border-white/10 text-zinc-300 hover:bg-white/5 text-xs sm:text-sm font-semibold cursor-pointer order-2 sm:order-1"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" /> Back
               </Button>
@@ -971,7 +979,7 @@ export function RegisterForm() {
                 type="button"
                 onClick={form.handleSubmit(onSubmit, onFormError)}
                 disabled={isSubmitting}
-                className="h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-xl shadow-primary/30"
+                className="h-11 sm:h-12 px-6 sm:px-8 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-xs sm:text-sm shadow-xl shadow-primary/30 hover:opacity-95 cursor-pointer order-1 sm:order-2 justify-center"
               >
                 {isSubmitting ? (
                   <>

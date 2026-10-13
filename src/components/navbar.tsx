@@ -19,25 +19,27 @@ export function Navbar() {
   ]
 
   return (
-    <header className="sticky top-3 z-50 w-full px-4 max-w-6xl mx-auto">
-      <div className="glass-card rounded-2xl px-5 py-3.5 flex items-center justify-between border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+    <header className="sticky top-0 md:top-3 z-50 w-full md:px-4 md:max-w-6xl md:mx-auto">
+      <div className="w-full px-4 md:px-5 py-2.5 md:py-3.5 flex items-center justify-between border-b md:border border-white/10 md:rounded-2xl bg-[#09080e]/95 md:bg-[rgba(22,18,36,0.75)] backdrop-blur-2xl shadow-lg md:shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-0.5 transition-transform group-hover:scale-105 shadow-md shadow-primary/20">
+        <Link href="/" className="flex items-center gap-2.5 group min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden bg-black/60 border border-white/10 p-0.5 transition-transform group-hover:scale-105 shadow-md shadow-primary/20 shrink-0">
             <img
               src="/logo.png"
               alt="GENZ BLING NAVRATRI 2026"
               className="w-full h-full object-contain"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold tracking-tight font-outfit text-lg text-white">GENZ BLING</span>
-              <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30 tracking-wider">
+              <span className="font-extrabold tracking-tight font-outfit text-base sm:text-lg text-white truncate">GENZ BLING</span>
+              <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30 tracking-wider shrink-0">
                 2026
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">By EventWale • Tech by Webwork</p>
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-widest font-medium truncate max-w-[170px] sm:max-w-none">
+              By EventWale • Tech by Webwork
+            </p>
           </div>
         </Link>
 
@@ -94,7 +96,7 @@ export function Navbar() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="md:hidden mt-2 glass-card rounded-2xl p-5 border border-white/10 shadow-2xl flex flex-col gap-4"
+            className="md:hidden mt-2 mx-4 rounded-2xl p-5 border border-white/10 shadow-2xl flex flex-col gap-4 bg-[#0e0c18] backdrop-blur-2xl"
           >
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
