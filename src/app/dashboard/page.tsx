@@ -87,6 +87,7 @@ async function getDashboardData() {
       paymentStatus: user.registration.paymentStatus,
       matchmakingOptIn: user.registration.matchmakingOptIn,
       partnerName: user.registration.partnerName,
+      partnerPhone: user.registration.partnerPhone,
       groupMembers: user.registration.groupMembers as any,
       rejectionReason: user.registration.payment?.rejectionReason,
       coordinatorPhone: user.registration.coordinatorPhone,

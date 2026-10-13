@@ -69,7 +69,7 @@ export async function loginUser(
       include: { registration: true },
     })
 
-    // 2. If not found as primary, check if this phone is registered as couple partner
+    // 2. If not found as primary, check if this phone is registered as couple partner or group member
     if (!user || !user.registration) {
       const coupleReg = await prisma.registration.findFirst({
         where: { partnerPhone: cleanPhone },
@@ -80,6 +80,32 @@ export async function loginUser(
         user = {
           ...coupleReg.user,
           registration: coupleReg,
+        }
+      } else {
+        // Check group members
+        const groupRegs = await prisma.registration.findMany({
+          where: {
+            passType: { in: ["GROUP", "GANG"] },
+          },
+          include: { user: true },
+        })
+
+        for (const reg of groupRegs) {
+          if (!reg.groupMembers) continue
+          let members: any[] = []
+          if (Array.isArray(reg.groupMembers)) members = reg.groupMembers
+          else if (typeof reg.groupMembers === "string") {
+            try {
+              members = JSON.parse(reg.groupMembers)
+            } catch {}
+          }
+          if (members.some((m: any) => m?.phone && normalizePhone(m.phone) === cleanPhone)) {
+            user = {
+              ...reg.user,
+              registration: reg,
+            }
+            break
+          }
         }
       }
     }
@@ -105,9 +131,14 @@ export async function loginUser(
     const userGbnAlpha = userGbn.replace(/[^A-Z0-9]/g, "")
     const userGbnDigits = userGbn.replace(/\D/g, "")
 
+    const inputUpper = passNumber.trim().toUpperCase()
+    const inputBase = inputUpper.replace(/-[A-Z0-9]+$/, "")
+
     const isMatch =
       userGbn === canonical ||
-      userGbn === passNumber.trim().toUpperCase() ||
+      userGbn === inputUpper ||
+      userGbn === inputBase ||
+      inputUpper.startsWith(userGbn) ||
       userGbnAlpha === alphanumeric ||
       (digitsOnly && userGbnDigits && parseInt(userGbnDigits, 10) === parseInt(digitsOnly, 10))
 
@@ -157,9 +188,11 @@ export async function lookupPassByPhone(phone: string): Promise<PassLookupRespon
     })
 
     if (user?.registration?.gbnNumber) {
+      const base = user.registration.gbnNumber
+      const passToShow = user.registration.passType !== "SINGLE" ? `${base}-A` : base
       return {
         success: true,
-        gbnNumber: user.registration.gbnNumber,
+        gbnNumber: passToShow,
         name: user.name,
       }
     }
@@ -173,8 +206,42 @@ export async function lookupPassByPhone(phone: string): Promise<PassLookupRespon
     if (coupleReg?.gbnNumber) {
       return {
         success: true,
-        gbnNumber: coupleReg.gbnNumber,
+        gbnNumber: `${coupleReg.gbnNumber}-B`,
         name: coupleReg.partnerName || coupleReg.user.name,
+      }
+    }
+
+    // Check group members phone
+    const groupRegs = await prisma.registration.findMany({
+      where: {
+        passType: { in: ["GROUP", "GANG"] },
+      },
+      include: { user: true },
+    })
+
+    const LETTER_SUFFIXES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    for (const reg of groupRegs) {
+      if (!reg.groupMembers) continue
+      let members: any[] = []
+      if (Array.isArray(reg.groupMembers)) members = reg.groupMembers
+      else if (typeof reg.groupMembers === "string") {
+        try {
+          members = JSON.parse(reg.groupMembers)
+        } catch {}
+      }
+      const matchIndex = members.findIndex(
+        (m: any) => m?.phone && normalizePhone(m.phone) === cleanPhone
+      )
+      if (matchIndex !== -1) {
+        const matchedMember = members[matchIndex]
+        const assignedPass =
+          matchedMember?.passNumber ||
+          `${reg.gbnNumber}-${LETTER_SUFFIXES[matchIndex + 1] || matchIndex + 2}`
+        return {
+          success: true,
+          gbnNumber: assignedPass,
+          name: matchedMember?.name || `Squad Member ${matchIndex + 2}`,
+        }
       }
     }
 

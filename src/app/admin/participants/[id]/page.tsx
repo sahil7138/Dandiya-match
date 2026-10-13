@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { DeleteParticipantButton } from "./../_components/delete-participant-button"
+import { MemberPassesManifest } from "./../_components/member-passes-manifest"
+import { getIndividualPasses } from "@/lib/passes"
 
 export default async function ParticipantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
@@ -16,6 +18,8 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
   })
 
   if (!reg) return notFound()
+
+  const passes = getIndividualPasses(reg)
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -36,6 +40,17 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
           redirectAfterDelete={true}
         />
       </div>
+
+      {/* Individual Passes Manifest for Group, Couple, and Solo attendees */}
+      <MemberPassesManifest
+        passes={passes}
+        passType={reg.passType}
+        bookingGbn={reg.gbnNumber}
+        leadName={reg.user.name}
+        paymentStatus={reg.paymentStatus}
+        coordinatorPhone={reg.coordinatorPhone}
+      />
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>

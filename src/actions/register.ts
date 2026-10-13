@@ -127,22 +127,21 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
       let groupMembers: any = undefined;
       if (validated.passType === PassTypeEnum.GROUP) {
         groupMembers = [
-          { name: validated.member2 },
-          { name: validated.member3 },
-          { name: validated.member4 }
+          { name: validated.member2, passNumber: `${assignedGbn}-B`, memberIndex: 2 },
+          { name: validated.member3, passNumber: `${assignedGbn}-C`, memberIndex: 3 },
+          { name: validated.member4, passNumber: `${assignedGbn}-D`, memberIndex: 4 }
         ]
       } else if (validated.passType === PassTypeEnum.GANG) {
-        groupMembers = [
-          { name: validated.member2 },
-          { name: validated.member3 },
-          { name: validated.member4 },
-          { name: validated.member5 },
-          { name: validated.member6 },
-          { name: validated.member7 },
-          { name: validated.member8 },
-          { name: validated.member9 },
-          { name: validated.member10 }
+        const letters = ["B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        const memberNames = [
+          validated.member2, validated.member3, validated.member4, validated.member5,
+          validated.member6, validated.member7, validated.member8, validated.member9, validated.member10
         ]
+        groupMembers = memberNames.map((mName, idx) => ({
+          name: mName,
+          passNumber: `${assignedGbn}-${letters[idx]}`,
+          memberIndex: idx + 2
+        }))
       }
 
       // 3. Create Registration
@@ -173,7 +172,7 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
         }
       })
 
-      return { registrationId: registration.id, assignedGbn }
+      return { registrationId: registration.id, assignedGbn, user, registration }
     })
 
     return { 

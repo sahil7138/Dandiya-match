@@ -108,13 +108,34 @@ export default function PaymentClient({ initialPayments }: { initialPayments: an
               {payments.map((payment) => (
                 <tr key={payment.id} className="bg-card hover:bg-muted/10 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-foreground">{payment.registration.user.name}</div>
+                    <div className="font-semibold text-foreground flex items-center gap-1.5">
+                      {payment.registration.user.name}
+                      {payment.registration.passType !== "SINGLE" && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-bold">
+                          Lead
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-muted-foreground font-mono">
                       +91 {payment.registration.user.phone} • {payment.registration.gbnNumber}
                     </div>
+                    {payment.registration.passType !== "SINGLE" && (
+                      <div className="text-[11px] text-primary font-medium mt-0.5">
+                        {payment.registration.passType === "COUPLE"
+                          ? "+1 Partner (2 Passes)"
+                          : payment.registration.passType === "GROUP"
+                          ? "+3 Squad Members (4 Passes)"
+                          : "+9 Gang Members (10 Passes)"}
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant="outline">{payment.registration.passType}</Badge>
+                    <Badge variant="outline">
+                      {payment.registration.passType}
+                      {payment.registration.passType === "COUPLE" && " (×2)"}
+                      {payment.registration.passType === "GROUP" && " (×4)"}
+                      {payment.registration.passType === "GANG" && " (×10)"}
+                    </Badge>
                   </td>
                   <td className="px-6 py-4 font-bold text-foreground">
                     ₹{payment.amount}
@@ -215,6 +236,49 @@ export default function PaymentClient({ initialPayments }: { initialPayments: an
                 <p className="text-[11px] text-muted-foreground">
                   Confirm or update the exact Pass Number printed on the physical wristband.
                 </p>
+
+                {/* Live Individual Passes Preview for Non-Single Passes */}
+                {selectedPayment.registration?.passType !== "SINGLE" && approveGbn && (
+                  <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-2 mt-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                        <Ticket className="w-3.5 h-3.5 text-primary" /> Member Passes to Issue:
+                      </span>
+                      <Badge variant="outline" className="text-[10px] font-mono">
+                        {selectedPayment.registration?.passType === "COUPLE"
+                          ? "2 Passes"
+                          : selectedPayment.registration?.passType === "GROUP"
+                          ? "4 Passes"
+                          : "10 Passes"}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 text-xs font-mono">
+                      <span className="px-2 py-0.5 rounded bg-card border border-primary/30 text-primary font-bold">
+                        {approveGbn}-A (Lead)
+                      </span>
+                      {selectedPayment.registration?.passType === "COUPLE" && (
+                        <span className="px-2 py-0.5 rounded bg-card border border-border text-foreground">
+                          {approveGbn}-B ({selectedPayment.registration?.partnerName || "Partner"})
+                        </span>
+                      )}
+                      {(selectedPayment.registration?.passType === "GROUP" ||
+                        selectedPayment.registration?.passType === "GANG") && (
+                        <>
+                          {Array.from({
+                            length: selectedPayment.registration?.passType === "GROUP" ? 3 : 9,
+                          }).map((_, i) => (
+                            <span
+                              key={i}
+                              className="px-2 py-0.5 rounded bg-card border border-border text-foreground"
+                            >
+                              {approveGbn}-{String.fromCharCode(66 + i)} (Member {i + 2})
+                            </span>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Input 2: Coordinator Contact Number */}

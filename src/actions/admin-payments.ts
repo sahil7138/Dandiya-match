@@ -50,12 +50,36 @@ export async function approvePayment(
       }
     })
 
+    // Update group members with individual pass numbers if applicable
+    let updatedGroupMembers = payment.registration.groupMembers
+    if (payment.registration.groupMembers) {
+      const LETTER_SUFFIXES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+      let members: any[] = []
+      if (Array.isArray(payment.registration.groupMembers)) {
+        members = payment.registration.groupMembers
+      } else if (typeof payment.registration.groupMembers === "string") {
+        try {
+          members = JSON.parse(payment.registration.groupMembers)
+        } catch {
+          members = []
+        }
+      }
+      if (members.length > 0) {
+        updatedGroupMembers = members.map((m, idx) => ({
+          ...(typeof m === "object" ? m : { name: m }),
+          passNumber: `${targetGbn}-${LETTER_SUFFIXES[idx + 1] || idx + 2}`,
+          memberIndex: idx + 2,
+        }))
+      }
+    }
+
     // Update registration with confirmed Pass No (GBN) and Coordinator Phone
     await prisma.registration.update({
       where: { id: payment.registrationId },
       data: { 
         paymentStatus: "VERIFIED",
         gbnNumber: targetGbn,
+        groupMembers: updatedGroupMembers ?? undefined,
         coordinatorPhone: cleanCoordinator || payment.registration.coordinatorPhone || "7709468117"
       }
     })

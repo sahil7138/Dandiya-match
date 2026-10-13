@@ -1,21 +1,39 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { logoutUser } from "@/actions/auth"
 import { 
   LogOut, Ticket, CreditCard, Lock, Sparkles, Clock, CheckCircle2, 
   Loader2, CalendarDays, MapPin, Phone, MessageSquare, User, ShieldCheck, Heart,
-  Copy, ExternalLink
+  Copy, ExternalLink, Users
 } from "lucide-react"
 import { InstagramIcon } from "@/components/icons/instagram"
 import Link from "next/link"
 import { toast } from "sonner"
+import { getIndividualPasses } from "@/lib/passes"
 
 export default function DashboardClient({ data }: { data: any }) {
   const [timeLeft, setTimeLeft] = useState({ h: "00", m: "00", s: "00" })
   const [isRevealed, setIsRevealed] = useState(data.match?.status === "REVEALED")
+
+  const individualPasses = useMemo(() => {
+    return getIndividualPasses({
+      id: "dashboard",
+      gbnNumber: data.registration.gbnNumber,
+      passType: data.registration.passType,
+      paymentStatus: data.registration.paymentStatus,
+      partnerName: data.registration.partnerName,
+      partnerPhone: data.registration.partnerPhone,
+      groupMembers: data.registration.groupMembers,
+      coordinatorPhone: data.registration.coordinatorPhone,
+      user: {
+        name: data.user.name,
+        phone: data.user.phone,
+      },
+    })
+  }, [data])
 
   useEffect(() => {
     if (!data.match || isRevealed) return
@@ -196,6 +214,61 @@ export default function DashboardClient({ data }: { data: any }) {
                 </div>
               </div>
 
+              {/* Member Passes Breakdown for Couples / Groups */}
+              {data.registration.passType !== "SINGLE" && (
+                <div className="pt-2.5 border-t border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-zinc-300 uppercase font-mono flex items-center gap-1.5">
+                      <Ticket className="w-3.5 h-3.5 text-[#ffb800]" /> Individual Attendee Passes ({individualPasses.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const text = individualPasses
+                          .map((p) => `${p.name} (${p.role}): ${p.passNumber}`)
+                          .join("\n")
+                        navigator.clipboard.writeText(text)
+                        toast.success("All individual attendee passes copied!")
+                      }}
+                      className="text-[10px] text-[#ffb800] hover:underline font-bold cursor-pointer"
+                    >
+                      Copy All Passes
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {individualPasses.map((p) => (
+                      <div
+                        key={p.passNumber}
+                        className="p-2.5 rounded-xl bg-black/60 border border-white/10 flex items-center justify-between"
+                      >
+                        <div className="truncate pr-2">
+                          <span className="text-xs font-bold text-white block truncate">
+                            {p.name}
+                          </span>
+                          <span className="text-[10px] text-zinc-400">{p.role}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="font-mono text-xs font-black text-[#ffb800] bg-[#ffb800]/10 px-2 py-0.5 rounded border border-[#ffb800]/20">
+                            {p.passNumber}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(p.passNumber)
+                              toast.success(`Copied ${p.passNumber} (${p.name})`)
+                            }}
+                            className="p-1 rounded text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                            title={`Copy ${p.passNumber}`}
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="pt-2 border-t border-white/10 flex items-start gap-2 text-[11px] text-zinc-300">
                 <Sparkles className="w-3.5 h-3.5 text-[#ffb800] shrink-0 mt-0.5" />
                 <span>
@@ -246,41 +319,57 @@ export default function DashboardClient({ data }: { data: any }) {
           ) : (
             <div className="space-y-6">
               {/* COUPLE PASS */}
-          {data.registration.passType === "COUPLE" && (
-            <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center space-y-3">
-              <span className="text-3xl block">💃🕺</span>
-              <h3 className="text-2xl font-black font-outfit text-white">Dynamic Duo Pass</h3>
-              <p className="text-sm text-zinc-300">
-                Registered Partner: <strong className="text-white text-base font-bold">{data.registration.partnerName || "Partner"}</strong>
-              </p>
-              <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-                Couple passes enter together directly at the entrance. Random Dandiya partner matching is not applicable for Duo passes.
-              </p>
-            </div>
-          )}
+              {data.registration.passType === "COUPLE" && (
+                <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center space-y-4">
+                  <span className="text-3xl block">💃🕺</span>
+                  <h3 className="text-2xl font-black font-outfit text-white">Dynamic Duo Pass</h3>
+                  <p className="text-sm text-zinc-300">
+                    Registered Partner: <strong className="text-white text-base font-bold">{data.registration.partnerName || "Partner"}</strong>
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-md mx-auto text-left pt-2">
+                    {individualPasses.map((p) => (
+                      <div key={p.passNumber} className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div>
+                          <span className="text-xs font-bold text-white block">{p.name}</span>
+                          <span className="text-[10px] text-zinc-400">{p.role}</span>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                          {p.passNumber}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+                    Couple passes enter together directly at the entrance. Random Dandiya partner matching is not applicable for Duo passes.
+                  </p>
+                </div>
+              )}
 
-          {/* GROUP PASS */}
-          {(data.registration.passType === "GROUP" || data.registration.passType === "GANG") && (
-            <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center space-y-4">
-              <span className="text-3xl block">⚡</span>
-              <h3 className="text-2xl font-black font-outfit text-white">
-                {data.registration.passType === "GROUP" ? "The Bling Squad (4 Members)" : "The Bling Gang (10 Members)"}
-              </h3>
-              <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
-                <span className="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-bold">
-                  {data.user.name} (Lead)
-                </span>
-                {data.registration.groupMembers?.map((m: any, i: number) => (
-                  <span key={i} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-zinc-300 text-xs font-medium">
-                    {m.name}
-                  </span>
-                ))}
-              </div>
-              <p className="text-xs text-zinc-500">
-                Your group will enter together through the fast-track group lane!
-              </p>
-            </div>
-          )}
+              {/* GROUP PASS */}
+              {(data.registration.passType === "GROUP" || data.registration.passType === "GANG") && (
+                <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center space-y-4">
+                  <span className="text-3xl block">⚡</span>
+                  <h3 className="text-2xl font-black font-outfit text-white">
+                    {data.registration.passType === "GROUP" ? "The Bling Squad (4 Members)" : "The Bling Gang (10 Members)"}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-lg mx-auto text-left">
+                    {individualPasses.map((p) => (
+                      <div key={p.passNumber} className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div className="truncate pr-2">
+                          <span className="text-xs font-bold text-white block truncate">{p.name}</span>
+                          <span className="text-[10px] text-zinc-400">{p.role}</span>
+                        </div>
+                        <span className="font-mono text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20 shrink-0">
+                          {p.passNumber}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-zinc-500">
+                    Your group will enter together through the fast-track group lane! Each member has their designated pass number above.
+                  </p>
+                </div>
+              )}
 
           {/* SINGLE PASS - NOT OPTED IN */}
           {data.registration.passType === "SINGLE" && !data.registration.matchmakingOptIn && (

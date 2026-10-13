@@ -67,7 +67,8 @@ export interface DashboardAttendeeData {
     paymentStatus: PaymentStatus
     matchmakingOptIn: boolean
     partnerName?: string | null
-    groupMembers?: { name?: string; phone?: string }[] | null
+    partnerPhone?: string | null
+    groupMembers?: { name?: string; phone?: string; passNumber?: string }[] | null
     rejectionReason?: string | null
     coordinatorPhone?: string | null
     instagramId?: string | null
@@ -85,6 +86,9 @@ export interface ParticipantListItem {
   paymentStatus: PaymentStatus
   matchmakingOptIn: boolean
   coordinatorPhone?: string | null
+  partnerName?: string | null
+  partnerPhone?: string | null
+  groupMembers?: any
   instagramId?: string | null
   dpdpConsent?: boolean
   instagramShareConsent?: boolean

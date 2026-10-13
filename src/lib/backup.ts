@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import fs from "fs/promises"
 import path from "path"
 import crypto from "crypto"
+import { getIndividualPasses } from "@/lib/passes"
 
 export interface BackupSummary {
   id: string
@@ -246,10 +247,13 @@ export async function generateParticipantsCSV(): Promise<string> {
   })
 
   const headers = [
-    "GBN Pass",
-    "Name",
+    "Individual Pass No",
+    "Attendee Name",
+    "Role",
     "Phone",
-    "Instagram",
+    "Booking Lead",
+    "Lead Phone",
+    "Base GBN",
     "Tier",
     "Payment Status",
     "Payment Amount",
@@ -259,19 +263,29 @@ export async function generateParticipantsCSV(): Promise<string> {
     "DPDP Consent Recorded",
   ]
 
-  const rows = registrations.map((r) => [
-    `"${r.gbnNumber}"`,
-    `"${r.user.name.replace(/"/g, '""')}"`,
-    `"${r.user.phone}"`,
-    `"${(r.user.instagramId || r.instagramId || "").replace(/"/g, '""')}"`,
-    `"${r.passType}"`,
-    `"${r.paymentStatus}"`,
-    `"${r.payment?.amount || 0}"`,
-    `"${r.matchmakingOptIn ? "YES" : "NO"}"`,
-    `"${r.coordinatorPhone || ""}"`,
-    `"${new Date(r.createdAt).toISOString()}"`,
-    `"${r.dpdpConsent ? "YES" : "NO"}"`,
-  ])
+  const rows: string[][] = []
+
+  for (const r of registrations) {
+    const passes = getIndividualPasses(r)
+    for (const p of passes) {
+      rows.push([
+        `"${p.passNumber}"`,
+        `"${p.name.replace(/"/g, '""')}"`,
+        `"${p.role}"`,
+        `"${p.phone || r.user.phone}"`,
+        `"${r.user.name.replace(/"/g, '""')}"`,
+        `"${r.user.phone}"`,
+        `"${r.gbnNumber}"`,
+        `"${r.passType}"`,
+        `"${r.paymentStatus}"`,
+        `"${r.payment?.amount || 0}"`,
+        `"${r.matchmakingOptIn ? "YES" : "NO"}"`,
+        `"${r.coordinatorPhone || ""}"`,
+        `"${new Date(r.createdAt).toISOString()}"`,
+        `"${r.dpdpConsent ? "YES" : "NO"}"`,
+      ])
+    }
+  }
 
   return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
 }
