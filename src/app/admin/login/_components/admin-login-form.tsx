@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import { loginAdmin } from "@/actions/admin-auth"
 import { useRouter } from "next/navigation"
-import { Lock, Mail, Loader2, ShieldCheck, AlertCircle, KeyRound } from "lucide-react"
+import { Lock, Mail, Loader2, ShieldCheck, AlertCircle } from "lucide-react"
 
 export function AdminLoginForm() {
   const [email, setEmail] = useState("")
@@ -56,13 +56,6 @@ export function AdminLoginForm() {
     }
   }
 
-  const fillDefaultCredentials = () => {
-    setEmail("rccindia@webworksstudios.com")
-    setPassword("WebAdminK@12")
-    setErrorMessage(null)
-    toast.info("Organizer credentials filled!")
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -105,7 +98,8 @@ export function AdminLoginForm() {
                 if (errorMessage) setErrorMessage(null)
               }}
               required
-              placeholder="rccindia@webworksstudios.com"
+              autoComplete="email"
+              placeholder="admin@example.com"
               className="h-11 text-sm font-mono"
             />
           </div>
@@ -124,6 +118,7 @@ export function AdminLoginForm() {
                 if (errorMessage) setErrorMessage(null)
               }}
               required
+              autoComplete="current-password"
               placeholder="Enter your password"
               className="h-11 text-sm"
             />
@@ -132,7 +127,7 @@ export function AdminLoginForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-semibold text-sm shadow-lg shadow-primary/25"
+            className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-semibold text-sm shadow-lg shadow-primary/25 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -142,17 +137,6 @@ export function AdminLoginForm() {
               "Sign In to Admin Portal"
             )}
           </Button>
-
-          <div className="pt-2 text-center">
-            <button
-              type="button"
-              onClick={fillDefaultCredentials}
-              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-primary transition-colors cursor-pointer"
-            >
-              <KeyRound className="w-3 h-3" />
-              Fill Organizer Credentials (rccindia@webworksstudios.com)
-            </button>
-          </div>
         </form>
       </Card>
     </motion.div>
