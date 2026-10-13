@@ -27,9 +27,9 @@ async function getDashboardData() {
     redirect("/login")
   }
 
-  // Get active match if opted in
+  // Get active match if opted in AND payment is verified
   let matchData = null;
-  if (user.registration.matchmakingOptIn) {
+  if (user.registration.matchmakingOptIn && user.registration.paymentStatus === "VERIFIED") {
     const match = await prisma.match.findFirst({
       where: {
         OR: [
@@ -84,6 +84,7 @@ async function getDashboardData() {
     registration: {
       gbnNumber: user.registration.gbnNumber,
       passType: user.registration.passType,
+      amount: user.registration.payment?.amount,
       paymentStatus: user.registration.paymentStatus,
       matchmakingOptIn: user.registration.matchmakingOptIn,
       partnerName: user.registration.partnerName,

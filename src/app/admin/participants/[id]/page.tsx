@@ -86,7 +86,18 @@ export default async function ParticipantDetailPage({ params }: { params: Promis
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground">GBN Number</p>
-              <p className="font-mono font-medium text-lg">{reg.gbnNumber}</p>
+              {reg.paymentStatus === "VERIFIED" ? (
+                <p className="font-mono font-black text-lg text-primary">{reg.gbnNumber}</p>
+              ) : (
+                <div className="space-y-1 mt-0.5">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 inline-block">
+                    Unissued • Pending Verification
+                  </span>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    ({reg.gbnNumber} reserved until payment approval)
+                  </p>
+                </div>
+              )}
             </div>
             {reg.coordinatorPhone && (
               <div>

@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { PassTypeEnum } from "@prisma/client"
+import { cookies } from "next/headers"
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -245,10 +246,19 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
       return { registrationId: registration.id, assignedGbn, user, registration }
     })
 
+    // Establish session cookie so registrant can immediately view their dashboard status
+    const cookieStore = await cookies()
+    cookieStore.set("user_session", result.user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+      sameSite: "lax",
+    })
+
     return { 
       success: true, 
       registrationId: result.registrationId, 
-      gbnNumber: result.assignedGbn,
       phone: validated.phone 
     }
     

@@ -19,22 +19,11 @@ interface RegistrationSuccessProps {
 
 export function RegistrationSuccess({
   amount,
-  gbnNumber,
   phone,
   matchmakingOptIn,
   passName,
 }: RegistrationSuccessProps) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopyPass = () => {
-    if (!gbnNumber) return
-    navigator.clipboard.writeText(gbnNumber)
-    setCopied(true)
-    toast.success("Pass number copied to clipboard!")
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const loginUrl = `/login${phone && gbnNumber ? `?phone=${phone}&pass=${gbnNumber}` : ""}`
+  const loginUrl = "/dashboard"
 
   return (
     <div className="flex-1 flex items-center justify-center p-4 py-16">
@@ -51,42 +40,30 @@ export function RegistrationSuccess({
           <CheckCircle2 className="w-10 h-10" />
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-[#ffb800]" /> OFFICIAL PASS CONFIRMED
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-bold text-yellow-400 mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-yellow-400" /> PAYMENT SUBMITTED • UNDER VERIFICATION
         </div>
 
         <h2 className="text-3xl font-black font-outfit text-white mb-2">
-          You&apos;re In! 🎉
+          Registration Received! 🎉
         </h2>
         <p className="text-zinc-400 text-sm mb-6">
-          Your booking for <strong className="text-white">GENZ BLING NAVRATRI 2026</strong> has been received and payment screenshot is queued for instant verification.
+          Your booking for <strong className="text-white">GENZ BLING NAVRATRI 2026</strong> has been received and your payment screenshot is queued for organizer verification.
         </p>
 
-        {/* Highlighted Pass Number Box */}
-        {gbnNumber && (
-          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-primary/15 via-[#8b5cf6]/15 to-[#ffb800]/15 border border-[#ffb800]/30 shadow-lg text-left">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#ffb800] flex items-center gap-1">
-                <Ticket className="w-3 h-3" /> OFFICIAL PASS NUMBER (GBN)
-              </span>
-              <button
-                type="button"
-                onClick={handleCopyPass}
-                className="text-xs text-[#ffb800] hover:text-white flex items-center gap-1 font-semibold transition-colors"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
-            <div className="text-2xl sm:text-3xl font-black font-mono tracking-wider text-white">
-              {gbnNumber}
-            </div>
-            <p className="text-[11px] text-zinc-300 mt-1 flex items-center gap-1">
-              <Phone className="w-3 h-3 text-primary shrink-0" />
-              <span>Use this Pass Number &amp; mobile <strong className="text-white font-mono">+91 {phone}</strong> to log in.</span>
-            </p>
+        {/* Verification Notice Box (Pass is NOT given until payment verified) */}
+        <div className="mb-6 p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 shadow-lg text-left space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-yellow-400 font-mono">
+            <Ticket className="w-3.5 h-3.5 text-yellow-400" /> Pass Issuance Notice
           </div>
-        )}
+          <p className="text-xs text-zinc-300 leading-relaxed">
+            Your official Pass Number (GBN) will be issued as soon as organizers verify your payment screenshot.
+          </p>
+          <div className="pt-1 text-[11px] text-zinc-400 flex items-center gap-1">
+            <Phone className="w-3 h-3 text-primary shrink-0" />
+            <span>You can log in to your dashboard anytime using registered mobile <strong className="text-white font-mono">+91 {phone}</strong>.</span>
+          </div>
+        </div>
 
         {/* Booking Details Summary */}
         <div className="bg-black/50 p-5 rounded-2xl border border-white/10 mb-6 text-left space-y-2.5">
@@ -110,10 +87,10 @@ export function RegistrationSuccess({
           )}
         </div>
 
-        {/* Action Button to Login */}
+        {/* Action Button to Dashboard */}
         <Link href={loginUrl} className="w-full block">
           <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-sm shadow-lg shadow-primary/30 hover:opacity-95 transition-all">
-            Open Dashboard with this Pass <ArrowRight className="w-4 h-4 ml-1.5" />
+            View Personal Dashboard <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </Link>
       </motion.div>

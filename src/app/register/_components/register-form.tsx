@@ -268,7 +268,6 @@ export function RegisterForm() {
     if (res.success && res.registrationId) {
       setSuccessData({
         registrationId: res.registrationId,
-        gbnNumber: res.gbnNumber,
         phone: data.phone,
         passType: watchPassType,
         amount: currentPrice,
@@ -286,7 +285,6 @@ export function RegisterForm() {
       <RegistrationSuccess
         passType={successData.passType}
         amount={successData.amount}
-        gbnNumber={successData.gbnNumber}
         phone={successData.phone}
         matchmakingOptIn={successData.matchmakingOptIn}
         passName={successData.passName}

@@ -492,23 +492,33 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
                       </td>
 
                       <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-xs font-black text-primary bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20 tracking-wider">
-                            {p.passNumber}
+                        {p.paymentStatus === "VERIFIED" ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-xs font-black text-primary bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20 tracking-wider">
+                              {p.passNumber}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyPass(p.passNumber, p.name)}
+                              title="Copy pass"
+                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                            >
+                              {isThisCopied ? (
+                                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                              ) : (
+                                <Copy className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        ) : p.paymentStatus === "REJECTED" ? (
+                          <span className="text-[11px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 whitespace-nowrap">
+                            Payment Declined
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopyPass(p.passNumber, p.name)}
-                            title="Copy pass"
-                            className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                          >
-                            {isThisCopied ? (
-                              <Check className="h-3.5 w-3.5 text-emerald-500" />
-                            ) : (
-                              <Copy className="h-3.5 w-3.5" />
-                            )}
-                          </button>
-                        </div>
+                        ) : (
+                          <span className="text-[11px] font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20 whitespace-nowrap">
+                            Pending Verification
+                          </span>
+                        )}
                       </td>
 
                       <td className="px-6 py-4">
@@ -706,40 +716,55 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
                         </td>
 
                         <td className="px-6 py-4 align-top">
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
-                                {reg.gbnNumber}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleCopyPass(reg.gbnNumber, reg.user.name)}
-                                title="Copy base pass"
-                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                              >
-                                {copiedPass === reg.gbnNumber ? (
-                                  <Check className="h-3 w-3 text-emerald-500" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </button>
-                            </div>
-
-                            {/* Show distinct passes for members */}
-                            {isMultiPass && (
-                              <div className="mt-1 flex flex-wrap gap-1 max-w-xs">
-                                {individualPasses.slice(1).map((p) => (
-                                  <span
-                                    key={p.passNumber}
-                                    title={`${p.name} (${p.passNumber})`}
-                                    className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-muted text-foreground border border-border/80"
-                                  >
-                                    {p.passNumber}
-                                  </span>
-                                ))}
+                          {reg.paymentStatus === "VERIFIED" ? (
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                                  {reg.gbnNumber}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyPass(reg.gbnNumber, reg.user.name)}
+                                  title="Copy base pass"
+                                  className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                >
+                                  {copiedPass === reg.gbnNumber ? (
+                                    <Check className="h-3 w-3 text-emerald-500" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </button>
                               </div>
-                            )}
-                          </div>
+
+                              {/* Show distinct passes for members */}
+                              {isMultiPass && (
+                                <div className="mt-1 flex flex-wrap gap-1 max-w-xs">
+                                  {individualPasses.slice(1).map((p) => (
+                                    <span
+                                      key={p.passNumber}
+                                      title={`${p.name} (${p.passNumber})`}
+                                      className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-muted text-foreground border border-border/80"
+                                    >
+                                      {p.passNumber}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : reg.paymentStatus === "REJECTED" ? (
+                            <span className="text-[11px] font-bold text-red-400 bg-red-500/10 px-2.5 py-1 rounded border border-red-500/20 whitespace-nowrap">
+                              Payment Declined
+                            </span>
+                          ) : (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[11px] font-bold text-yellow-400 bg-yellow-500/10 px-2.5 py-1 rounded border border-yellow-500/20 w-fit whitespace-nowrap">
+                                Pending Verification
+                              </span>
+                              <span className="text-[10px] text-muted-foreground font-mono">
+                                Passes held until approval
+                              </span>
+                            </div>
+                          )}
                         </td>
 
                         <td className="px-6 py-4 align-top">
@@ -856,27 +881,35 @@ export function ParticipantsTable({ registrations }: ParticipantsTableProps) {
                                       </div>
 
                                       <div className="flex items-center justify-between pt-1 border-t border-border/40">
-                                        <span className="font-mono text-xs font-black text-primary">
-                                          {p.passNumber}
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleCopyPass(p.passNumber, p.name)}
-                                          className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors cursor-pointer text-[10px] flex items-center gap-1"
-                                          title={`Copy ${p.passNumber}`}
-                                        >
-                                          {isThisCopied ? (
-                                            <>
-                                              <Check className="h-3 w-3 text-emerald-500" />
-                                              <span className="text-emerald-500">Copied</span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <Copy className="h-3 w-3" />
-                                              <span>Copy</span>
-                                            </>
-                                          )}
-                                        </button>
+                                        {reg.paymentStatus === "VERIFIED" ? (
+                                          <>
+                                            <span className="font-mono text-xs font-black text-primary">
+                                              {p.passNumber}
+                                            </span>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleCopyPass(p.passNumber, p.name)}
+                                              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors cursor-pointer text-[10px] flex items-center gap-1"
+                                              title={`Copy ${p.passNumber}`}
+                                            >
+                                              {isThisCopied ? (
+                                                <>
+                                                  <Check className="h-3 w-3 text-emerald-500" />
+                                                  <span className="text-emerald-500">Copied</span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <Copy className="h-3 w-3" />
+                                                  <span>Copy</span>
+                                                </>
+                                              )}
+                                            </button>
+                                          </>
+                                        ) : (
+                                          <span className="text-[10px] font-semibold text-yellow-400">
+                                            On Hold (Pending Payment)
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                   )

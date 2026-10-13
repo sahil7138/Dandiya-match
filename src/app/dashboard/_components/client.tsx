@@ -7,7 +7,7 @@ import { logoutUser } from "@/actions/auth"
 import { 
   LogOut, Ticket, CreditCard, Lock, Sparkles, Clock, CheckCircle2, 
   Loader2, CalendarDays, MapPin, Phone, MessageSquare, User, ShieldCheck, Heart,
-  Copy, ExternalLink, Users
+  Copy, ExternalLink, Users, RefreshCw, AlertCircle
 } from "lucide-react"
 import { InstagramIcon } from "@/components/icons/instagram"
 import Link from "next/link"
@@ -59,6 +59,10 @@ export default function DashboardClient({ data }: { data: any }) {
     return () => clearInterval(timer)
   }, [data.match, isRevealed])
 
+  const isVerified = data.registration.paymentStatus === "VERIFIED"
+  const isPending = data.registration.paymentStatus === "PENDING"
+  const isRejected = data.registration.paymentStatus === "REJECTED"
+
   const paymentBadgeStyles: Record<string, { bg: string; text: string; label: string }> = {
     VERIFIED: { bg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-400", text: "text-emerald-400", label: "Payment Verified ✓" },
     PENDING: { bg: "bg-yellow-500/15 border-yellow-500/30 text-yellow-400", text: "text-yellow-400", label: "Verification Pending ⏳" },
@@ -101,9 +105,10 @@ export default function DashboardClient({ data }: { data: any }) {
       </div>
 
       <div className="w-full max-w-2xl space-y-6">
-        
-        {/* Welcome Header */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-left">
+        {isVerified ? (
+          <>
+            {/* Welcome Header */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-left">
           <span className="text-xs font-bold text-[#ffb800] tracking-widest uppercase font-mono">
             OFFICIAL FESTIVAL PASS
           </span>
@@ -172,121 +177,109 @@ export default function DashboardClient({ data }: { data: any }) {
           </div>
 
           {/* Physical Pass Collection Box */}
-          {data.registration.paymentStatus === "VERIFIED" ? (
-            <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-[#ffb800]/10 to-primary/10 border border-emerald-500/30 text-left space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 font-mono">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> PHYSICAL PASS COLLECTION
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-[#ffb800]/10 to-primary/10 border border-emerald-500/30 text-left space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 font-mono">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> PHYSICAL PASS COLLECTION
+              </span>
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                Approved &amp; Issued
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Pass Number Box */}
+              <div className="p-3 rounded-xl bg-black/50 border border-white/10">
+                <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
+                  <Ticket className="w-3 h-3 text-[#ffb800]" /> Pass Number (GBN)
                 </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                  Approved &amp; Issued
+                <span className="text-xl font-black font-mono text-[#ffb800] mt-0.5 block tracking-wider">
+                  {data.registration.gbnNumber}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                {/* Pass Number Box */}
-                <div className="p-3 rounded-xl bg-black/50 border border-white/10">
-                  <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
-                    <Ticket className="w-3 h-3 text-[#ffb800]" /> Pass Number (GBN)
+              {/* Coordinator Contact Box */}
+              <div className="p-3 rounded-xl bg-black/50 border border-white/10">
+                <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
+                  <Phone className="w-3 h-3 text-emerald-400" /> Coordinator Contact
+                </span>
+                {data.registration.coordinatorPhone ? (
+                  <a
+                    href={`tel:${data.registration.coordinatorPhone}`}
+                    className="text-base font-bold font-mono text-emerald-400 hover:underline flex items-center gap-1.5 mt-0.5"
+                  >
+                    <span>+91 {data.registration.coordinatorPhone}</span>
+                  </a>
+                ) : (
+                  <span className="text-xs text-zinc-300 font-semibold mt-1 block">
+                    Available at Turf Helpdesk
                   </span>
-                  <span className="text-xl font-black font-mono text-[#ffb800] mt-0.5 block tracking-wider">
-                    {data.registration.gbnNumber}
-                  </span>
-                </div>
-
-                {/* Coordinator Contact Box */}
-                <div className="p-3 rounded-xl bg-black/50 border border-white/10">
-                  <span className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
-                    <Phone className="w-3 h-3 text-emerald-400" /> Coordinator Contact
-                  </span>
-                  {data.registration.coordinatorPhone ? (
-                    <a
-                      href={`tel:${data.registration.coordinatorPhone}`}
-                      className="text-base font-bold font-mono text-emerald-400 hover:underline flex items-center gap-1.5 mt-0.5"
-                    >
-                      <span>+91 {data.registration.coordinatorPhone}</span>
-                    </a>
-                  ) : (
-                    <span className="text-xs text-zinc-300 font-semibold mt-1 block">
-                      Available at Turf Helpdesk
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
+            </div>
 
-              {/* Member Passes Breakdown for Couples / Groups */}
-              {data.registration.passType !== "SINGLE" && (
-                <div className="pt-2.5 border-t border-white/10 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-zinc-300 uppercase font-mono flex items-center gap-1.5">
-                      <Ticket className="w-3.5 h-3.5 text-[#ffb800]" /> Individual Attendee Passes ({individualPasses.length})
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const text = individualPasses
-                          .map((p) => `${p.name} (${p.role}): ${p.passNumber}`)
-                          .join("\n")
-                        navigator.clipboard.writeText(text)
-                        toast.success("All individual attendee passes copied!")
-                      }}
-                      className="text-[10px] text-[#ffb800] hover:underline font-bold cursor-pointer"
+            {/* Member Passes Breakdown for Couples / Groups */}
+            {data.registration.passType !== "SINGLE" && (
+              <div className="pt-2.5 border-t border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-zinc-300 uppercase font-mono flex items-center gap-1.5">
+                    <Ticket className="w-3.5 h-3.5 text-[#ffb800]" /> Individual Attendee Passes ({individualPasses.length})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = individualPasses
+                        .map((p) => `${p.name} (${p.role}): ${p.passNumber}`)
+                        .join("\n")
+                      navigator.clipboard.writeText(text)
+                      toast.success("All individual attendee passes copied!")
+                    }}
+                    className="text-[10px] text-[#ffb800] hover:underline font-bold cursor-pointer"
+                  >
+                    Copy All Passes
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {individualPasses.map((p) => (
+                    <div
+                      key={p.passNumber}
+                      className="p-2.5 rounded-xl bg-black/60 border border-white/10 flex items-center justify-between"
                     >
-                      Copy All Passes
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {individualPasses.map((p) => (
-                      <div
-                        key={p.passNumber}
-                        className="p-2.5 rounded-xl bg-black/60 border border-white/10 flex items-center justify-between"
-                      >
-                        <div className="truncate pr-2">
-                          <span className="text-xs font-bold text-white block truncate">
-                            {p.name}
-                          </span>
-                          <span className="text-[10px] text-zinc-400">{p.role}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="font-mono text-xs font-black text-[#ffb800] bg-[#ffb800]/10 px-2 py-0.5 rounded border border-[#ffb800]/20">
-                            {p.passNumber}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard.writeText(p.passNumber)
-                              toast.success(`Copied ${p.passNumber} (${p.name})`)
-                            }}
-                            className="p-1 rounded text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer"
-                            title={`Copy ${p.passNumber}`}
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                      <div className="truncate pr-2">
+                        <span className="text-xs font-bold text-white block truncate">
+                          {p.name}
+                        </span>
+                        <span className="text-[10px] text-zinc-400">{p.role}</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="font-mono text-xs font-black text-[#ffb800] bg-[#ffb800]/10 px-2 py-0.5 rounded border border-[#ffb800]/20">
+                          {p.passNumber}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(p.passNumber)
+                            toast.success(`Copied ${p.passNumber} (${p.name})`)
+                          }}
+                          className="p-1 rounded text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                          title={`Copy ${p.passNumber}`}
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              <div className="pt-2 border-t border-white/10 flex items-start gap-2 text-[11px] text-zinc-300">
-                <Sparkles className="w-3.5 h-3.5 text-[#ffb800] shrink-0 mt-0.5" />
-                <span>
-                  Quote your Pass No (<strong className="text-white font-mono">{data.registration.gbnNumber}</strong>) to the Coordinator to collect your physical festival wristband.
-                </span>
-              </div>
+            <div className="pt-2 border-t border-white/10 flex items-start gap-2 text-[11px] text-zinc-300">
+              <Sparkles className="w-3.5 h-3.5 text-[#ffb800] shrink-0 mt-0.5" />
+              <span>
+                Quote your Pass No (<strong className="text-white font-mono">{data.registration.gbnNumber}</strong>) to the Coordinator to collect your physical festival wristband.
+              </span>
             </div>
-          ) : data.registration.paymentStatus === "PENDING" ? (
-            <div className="mb-6 p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-left flex items-start gap-3">
-              <Clock className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <p className="text-xs font-bold text-yellow-300">Payment Under Admin Verification</p>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Your registration is under verification. Once approved, your confirmed Pass No (GBN) and designated Coordinator contact number will appear right here for physical wristband collection.
-                </p>
-              </div>
-            </div>
-          ) : null}
+          </div>
 
           {/* Barcode graphic effect */}
           <div className="pt-2 flex flex-col items-center">
@@ -303,20 +296,6 @@ export default function DashboardClient({ data }: { data: any }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {data.registration.paymentStatus === "REJECTED" ? (
-            <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-red-500/30 text-center space-y-3">
-              <span className="text-4xl block mb-2">❌</span>
-              <h3 className="text-2xl font-black font-outfit text-white">Payment Declined</h3>
-              <p className="text-sm text-zinc-400 max-w-sm mx-auto">
-                Your payment screenshot could not be verified.
-              </p>
-              {data.registration.rejectionReason && (
-                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
-                  <strong>Reason:</strong> {data.registration.rejectionReason}
-                </div>
-              )}
-            </div>
-          ) : (
             <div className="space-y-6">
               {/* COUPLE PASS */}
               {data.registration.passType === "COUPLE" && (
@@ -567,9 +546,165 @@ export default function DashboardClient({ data }: { data: any }) {
 
             </div>
           )}
+        </div>
+      </motion.div>
+    </>
+  ) : isPending ? (
+          /* PENDING VERIFICATION SCREEN */
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* Header */}
+            <div className="text-left">
+              <span className="text-xs font-bold text-yellow-400 tracking-widest uppercase font-mono">
+                REGISTRATION RECEIVED
+              </span>
+              <h1 className="text-3xl font-black font-outfit text-white">
+                Hey, {data.user.name} 👋
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-400">
+                Your registration payment is currently awaiting verification by our organizers.
+              </p>
             </div>
-          )}
-        </motion.div>
+
+            {/* Main Pending Verification Card */}
+            <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-yellow-500/30 shadow-[0_0_50px_rgba(234,179,8,0.12)] text-center relative overflow-hidden space-y-6">
+              <div className="w-20 h-20 rounded-full bg-yellow-500/15 border-2 border-yellow-500/40 mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                <Clock className="w-10 h-10 text-yellow-400 animate-pulse" />
+              </div>
+
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 text-xs font-bold mb-3 font-mono">
+                  <span>⏳</span> PAYMENT UNDER VERIFICATION
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black font-outfit text-white">
+                  Pass On Hold • Awaiting Approval
+                </h2>
+                <p className="text-xs sm:text-sm text-zinc-300 max-w-md mx-auto mt-2 leading-relaxed">
+                  Official GBN pass numbers and entry barcodes are released only after payment verification by our event desk.
+                </p>
+              </div>
+
+              {/* Registration Snapshot (Without Pass Number) */}
+              <div className="bg-black/50 rounded-2xl p-4 sm:p-5 border border-white/10 text-left space-y-3 max-w-lg mx-auto">
+                <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider font-mono border-b border-white/10 pb-2 flex items-center justify-between">
+                  <span>Booking Summary</span>
+                  <span className="text-yellow-400">Verification Pending</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <span className="text-[10px] text-zinc-400 uppercase block">Registered Attendee</span>
+                    <span className="font-bold text-white text-sm">{data.user.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-400 uppercase block">Mobile Contact</span>
+                    <span className="font-mono font-bold text-white text-sm">+91 {data.user.phone}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-400 uppercase block">Pass Tier</span>
+                    <span className="font-bold text-primary text-sm">{data.registration.passType} PASS</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-400 uppercase block">Pass Number (GBN)</span>
+                    <span className="font-mono font-bold text-yellow-400 text-xs bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20 inline-block mt-0.5">
+                      Issued Post Verification
+                    </span>
+                  </div>
+                </div>
+
+                {data.registration.partnerName && (
+                  <div className="pt-2 border-t border-white/10 text-xs">
+                    <span className="text-[10px] text-zinc-400 uppercase block">Partner / Member</span>
+                    <span className="font-bold text-white">{data.registration.partnerName}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* What happens next */}
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-zinc-400 text-left space-y-2 max-w-lg mx-auto">
+                <p className="font-semibold text-white flex items-center gap-1.5 text-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> What happens once approved?
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-[11px] text-zinc-300">
+                  <li>Your official <strong className="text-white">GBN Pass Number</strong> and gate barcodes will unlock instantly.</li>
+                  <li>Designated coordinator phone details for wristband pickup will be activated.</li>
+                  <li>If opted into matchmaking or couple passes, partner access will be enabled.</li>
+                </ul>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2 max-w-md mx-auto">
+                <Button
+                  onClick={() => window.location.reload()}
+                  className="w-full sm:w-auto h-11 px-6 rounded-xl bg-gradient-to-r from-primary to-[#ffb800] text-white font-bold text-xs shadow-lg shadow-primary/20 hover:opacity-95"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh Status
+                </Button>
+                <a
+                  href={`https://wa.me/917709468117?text=Hi%20Organizer,%20I%20have%20registered%20for%20GENZ%20BLING%202026%20with%20phone%20${data.user.phone}.%20Please%20verify%20my%20payment.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
+                >
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 px-5 rounded-xl border-white/10 text-white hover:bg-white/5 text-xs font-semibold"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 mr-1.5 text-emerald-400" /> WhatsApp Accounts Team
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          /* PAYMENT DECLINED / REJECTED SCREEN */
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* Header */}
+            <div className="text-left">
+              <span className="text-xs font-bold text-red-400 tracking-widest uppercase font-mono">
+                PAYMENT STATUS
+              </span>
+              <h1 className="text-3xl font-black font-outfit text-white">
+                Hey, {data.user.name}
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-400">
+                There was an issue verifying your payment for GENZ BLING NAVRATRI 2026.
+              </p>
+            </div>
+
+            <div className="glass-card rounded-[2rem] p-6 sm:p-8 border border-red-500/30 text-center space-y-4">
+              <span className="text-4xl block mb-2">❌</span>
+              <h3 className="text-2xl font-black font-outfit text-white">Payment Declined</h3>
+              <p className="text-sm text-zinc-400 max-w-sm mx-auto">
+                Your payment screenshot could not be verified by the admin team. No pass has been issued.
+              </p>
+              {data.registration.rejectionReason && (
+                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm max-w-md mx-auto text-left">
+                  <strong className="block text-xs uppercase font-mono tracking-wider mb-1">Rejection Reason:</strong>
+                  {data.registration.rejectionReason}
+                </div>
+              )}
+              <div className="pt-4 flex justify-center">
+                <a
+                  href={`https://wa.me/917709468117?text=Hi%20Organizer,%20my%20payment%20for%20phone%20${data.user.phone}%20was%20declined.%20Please%20help.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="h-11 px-6 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs">
+                    <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Contact Organizers For Resolution
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Quick Enquiries Card */}
         <div className="glass-card rounded-2xl p-5 border border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">

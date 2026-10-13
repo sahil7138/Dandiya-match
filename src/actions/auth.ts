@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import type { LoginResponse, PassLookupResponse } from "@/types"
+import { getIndividualPasses } from "@/lib/passes"
 
 /**
  * Normalizes user input for phone number (extracting last 10 digits)
@@ -151,7 +152,12 @@ export async function loginUser(
       })
     }
 
+    const isPendingLogin =
+      user.registration.paymentStatus === "PENDING" &&
+      (inputUpper === "PENDING" || inputUpper === "STATUS" || digitsOnly === cleanPhone)
+
     const isMatch =
+      isPendingLogin ||
       memberPassMatch ||
       userGbn === canonical ||
       userGbn === inputUpper ||
@@ -161,6 +167,18 @@ export async function loginUser(
       (digitsOnly && userGbnDigits && parseInt(userGbnDigits, 10) === parseInt(digitsOnly, 10))
 
     if (!isMatch) {
+      if (user.registration.paymentStatus === "PENDING") {
+        return {
+          success: false,
+          error: `Payment for +91 ${cleanPhone} is currently under verification. Pass number will only be issued once verified by organizers.`,
+        }
+      }
+      if (user.registration.paymentStatus === "REJECTED") {
+        return {
+          success: false,
+          error: `Payment verification was declined for mobile +91 ${cleanPhone}. Please contact event organizers.`,
+        }
+      }
       return {
         success: false,
         error: `Invalid Pass Number for mobile +91 ${cleanPhone}. Please check your GBN pass number (e.g. GBN-0001).`,
@@ -188,7 +206,8 @@ export async function loginUser(
 }
 
 /**
- * Helper to retrieve an attendee's pass number by registered mobile number
+ * Helper to retrieve an attendee's pass number by registered mobile number.
+ * Pass number is ONLY issued and visible once payment is VERIFIED.
  */
 export async function lookupPassByPhone(phone: string): Promise<PassLookupResponse> {
   try {
@@ -202,70 +221,81 @@ export async function lookupPassByPhone(phone: string): Promise<PassLookupRespon
 
     const user = await prisma.user.findUnique({
       where: { phone: cleanPhone },
-      include: { registration: true },
+      include: { registration: { include: { user: true } } },
     })
 
-    if (user?.registration?.gbnNumber) {
-      const base = user.registration.gbnNumber
-      const passToShow = user.registration.passType !== "SINGLE" ? `${base}-A` : base
-      return {
-        success: true,
-        gbnNumber: passToShow,
-        name: user.name,
-      }
-    }
+    let reg: any = user?.registration
+    let matchedName = user?.name || "Attendee"
 
     // Check partner phone
-    const coupleReg = await prisma.registration.findFirst({
-      where: { partnerPhone: cleanPhone },
-      include: { user: true },
-    })
-
-    if (coupleReg?.gbnNumber) {
-      return {
-        success: true,
-        gbnNumber: `${coupleReg.gbnNumber}-B`,
-        name: coupleReg.partnerName || coupleReg.user.name,
+    if (!reg) {
+      const coupleReg = await prisma.registration.findFirst({
+        where: { partnerPhone: cleanPhone },
+        include: { user: true },
+      })
+      if (coupleReg) {
+        reg = coupleReg
+        matchedName = coupleReg.partnerName || "Couple Partner"
       }
     }
 
     // Check group members phone
-    const groupRegs = await prisma.registration.findMany({
-      where: {
-        passType: { in: ["GROUP", "GANG"] },
-      },
-      include: { user: true },
-    })
-
-    const LETTER_SUFFIXES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-    for (const reg of groupRegs) {
-      if (!reg.groupMembers) continue
-      let members: any[] = []
-      if (Array.isArray(reg.groupMembers)) members = reg.groupMembers
-      else if (typeof reg.groupMembers === "string") {
-        try {
-          members = JSON.parse(reg.groupMembers)
-        } catch {}
-      }
-      const matchIndex = members.findIndex(
-        (m: any) => m?.phone && normalizePhone(m.phone) === cleanPhone
-      )
-      if (matchIndex !== -1) {
-        const matchedMember = members[matchIndex]
-        const assignedPass =
-          matchedMember?.passNumber ||
-          `${reg.gbnNumber}-${LETTER_SUFFIXES[matchIndex + 1] || matchIndex + 2}`
-        return {
-          success: true,
-          gbnNumber: assignedPass,
-          name: matchedMember?.name || `Squad Member ${matchIndex + 2}`,
+    if (!reg) {
+      const groupRegs = await prisma.registration.findMany({
+        where: { passType: { in: ["GROUP", "GANG"] } },
+        include: { user: true },
+      })
+      for (const gReg of groupRegs) {
+        if (!gReg.groupMembers) continue
+        let members: any[] = []
+        if (Array.isArray(gReg.groupMembers)) members = gReg.groupMembers
+        else if (typeof gReg.groupMembers === "string") {
+          try { members = JSON.parse(gReg.groupMembers) } catch {}
+        }
+        const m = members.find((x: any) => x?.phone && normalizePhone(x.phone) === cleanPhone)
+        if (m) {
+          reg = gReg
+          matchedName = m.name || "Squad Member"
+          break
         }
       }
     }
 
+    if (!reg) {
+      return {
+        success: false,
+        error: "No booking found with this mobile number. Please check your number or register.",
+      }
+    }
+
+    // Strict rule: Pass number only visible after verifying participant!
+    if (reg.paymentStatus === "PENDING") {
+      return {
+        success: false,
+        error: `Booking found for ${matchedName}, but payment is pending verification. Pass number will only be issued once approved by organizers.`,
+      }
+    }
+
+    if (reg.paymentStatus === "REJECTED") {
+      return {
+        success: false,
+        error: `Payment verification was declined for ${matchedName}. Please contact event organizers.`,
+      }
+    }
+
+    // Payment is VERIFIED: return the distinct pass
+    const allPasses = getIndividualPasses(reg)
+    const myPass =
+      allPasses.find(
+        (p) =>
+          (p.phone && normalizePhone(p.phone) === cleanPhone) ||
+          (p.isLead && normalizePhone(reg.user?.phone || "") === cleanPhone)
+      ) || allPasses[0]
+
     return {
-      success: false,
-      error: "No pass found for this mobile number. Please check the number or register.",
+      success: true,
+      gbnNumber: myPass.passNumber,
+      name: myPass.name,
     }
   } catch (err: any) {
     console.error("Lookup error:", err)

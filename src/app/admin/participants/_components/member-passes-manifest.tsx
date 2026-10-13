@@ -79,23 +79,35 @@ export function MemberPassesManifest({
             </div>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={copyAllManifest}
-            className="gap-1.5 text-xs font-semibold border-primary/30 hover:bg-primary/10 hover:text-primary cursor-pointer shrink-0"
-          >
-            {allCopied ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-emerald-500" /> All Passes Copied
-              </>
-            ) : (
-              <>
-                <Share2 className="h-3.5 w-3.5" /> Copy Full Manifest
-              </>
-            )}
-          </Button>
+          {paymentStatus === "VERIFIED" ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={copyAllManifest}
+              className="gap-1.5 text-xs font-semibold border-primary/30 hover:bg-primary/10 hover:text-primary cursor-pointer shrink-0"
+            >
+              {allCopied ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-emerald-500" /> All Passes Copied
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-3.5 w-3.5" /> Copy Full Manifest
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled
+              className="gap-1.5 text-xs font-semibold opacity-50 shrink-0 cursor-not-allowed"
+            >
+              <Ticket className="h-3.5 w-3.5" /> Manifest Locked (Pending Payment)
+            </Button>
+          )}
         </div>
       </CardHeader>
 
@@ -126,23 +138,29 @@ export function MemberPassesManifest({
                     </td>
 
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-sm text-primary tracking-wide bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20">
-                          {pass.passNumber}
+                      {paymentStatus === "VERIFIED" ? (
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-sm text-primary tracking-wide bg-primary/10 px-2.5 py-1 rounded-md border border-primary/20">
+                            {pass.passNumber}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => copyPass(pass.passNumber, pass.name)}
+                            title="Copy pass number"
+                            className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            {isCopied ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-500" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs font-bold text-yellow-500 bg-yellow-500/10 px-2.5 py-1 rounded border border-yellow-500/20 whitespace-nowrap">
+                          Pending Verification
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => copyPass(pass.passNumber, pass.name)}
-                          title="Copy pass number"
-                          className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                        >
-                          {isCopied ? (
-                            <Check className="h-3.5 w-3.5 text-emerald-500" />
-                          ) : (
-                            <Copy className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      </div>
+                      )}
                     </td>
 
                     <td className="px-5 py-3.5">
@@ -191,25 +209,31 @@ export function MemberPassesManifest({
                     </td>
 
                     <td className="px-5 py-3.5 text-right">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyPass(pass.passNumber, pass.name)}
-                        className="h-8 px-2.5 text-xs text-primary hover:text-primary hover:bg-primary/10 gap-1.5 cursor-pointer"
-                      >
-                        {isCopied ? (
-                          <>
-                            <Check className="h-3.5 w-3.5 text-emerald-500" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3.5 w-3.5" />
-                            Copy Pass
-                          </>
-                        )}
-                      </Button>
+                      {paymentStatus === "VERIFIED" ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyPass(pass.passNumber, pass.name)}
+                          className="h-8 px-2.5 text-xs text-primary hover:text-primary hover:bg-primary/10 gap-1.5 cursor-pointer"
+                        >
+                          {isCopied ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 text-emerald-500" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5" />
+                              Copy Pass
+                            </>
+                          )}
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground font-mono">
+                          Locked
+                        </span>
+                      )}
                     </td>
                   </tr>
                 )
