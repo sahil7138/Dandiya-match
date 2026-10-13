@@ -55,29 +55,62 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
       return { success: false, error: "This phone number is already registered." }
     }
 
-    // Auto-assign the lowest available GBN number (1 to 100)
-    const registrations = await prisma.registration.findMany({
-      select: { gbnNumber: true },
-      where: { gbnNumber: { startsWith: "GBN-" } }
+    // Determine how many passes this registration needs
+    const requiredPassCount =
+      validated.passType === PassTypeEnum.GANG
+        ? 10
+        : validated.passType === PassTypeEnum.GROUP
+        ? 4
+        : validated.passType === PassTypeEnum.COUPLE
+        ? 2
+        : 1
+
+    // Collect all already taken GBN pass numbers (from leads and group members)
+    const allRegs = await prisma.registration.findMany({
+      select: { gbnNumber: true, groupMembers: true },
     })
-    const takenPasses = new Set(registrations.map(r => r.gbnNumber))
-    
-    let assignedGbn = null
-    for (let i = 1; i <= 100; i++) {
-      const passNumber = `GBN-${i.toString().padStart(4, '0')}`
+    const takenPasses = new Set<string>()
+    allRegs.forEach((r) => {
+      if (r.gbnNumber) takenPasses.add(r.gbnNumber.trim().toUpperCase())
+      if (r.groupMembers) {
+        let members: any[] = []
+        if (Array.isArray(r.groupMembers)) members = r.groupMembers
+        else if (typeof r.groupMembers === "string") {
+          try {
+            members = JSON.parse(r.groupMembers)
+          } catch {}
+        }
+        members.forEach((m: any) => {
+          if (m?.passNumber) takenPasses.add(String(m.passNumber).trim().toUpperCase())
+        })
+      }
+    })
+
+    // Assign lowest available distinct GBN numbers (1 to 200)
+    const assignedPasses: string[] = []
+    for (let i = 1; i <= 200; i++) {
+      const passNumber = `GBN-${i.toString().padStart(4, "0")}`
       if (!takenPasses.has(passNumber)) {
-        assignedGbn = passNumber
-        break
+        assignedPasses.push(passNumber)
+        if (assignedPasses.length === requiredPassCount) {
+          break
+        }
       }
     }
 
-    if (!assignedGbn) {
-      return { success: false, error: "Registration full! All 100 passes have been claimed." }
+    if (assignedPasses.length < requiredPassCount) {
+      return { success: false, error: "Registration full! Not enough passes are available." }
     }
+
+    const assignedGbn = assignedPasses[0]
 
     // Business Logic Validation (CRITICAL)
     let finalOptIn = validated.matchmakingOptIn
-    if (validated.passType === PassTypeEnum.COUPLE || validated.passType === PassTypeEnum.GROUP || validated.passType === PassTypeEnum.GANG) {
+    if (
+      validated.passType === PassTypeEnum.COUPLE ||
+      validated.passType === PassTypeEnum.GROUP ||
+      validated.passType === PassTypeEnum.GANG
+    ) {
       finalOptIn = false
     }
 
@@ -87,7 +120,7 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
     }
 
     // Clean and normalize Instagram Handle
-    const rawIg = validated.instagramId ? validated.instagramId.replace(/^@+/, '').trim() : null
+    const rawIg = validated.instagramId ? validated.instagramId.replace(/^@+/, "").trim() : null
     if (finalOptIn && validated.passType === PassTypeEnum.SINGLE) {
       if (!rawIg || rawIg.length < 2) {
         return { success: false, error: "Please enter your Instagram ID so your matched dance partner can coordinate with you." }
@@ -107,7 +140,7 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
           name: validated.name,
           phone: validated.phone,
           instagramId: rawIg,
-        }
+        },
       })
 
       // 2. Create Match Profile if applicable
@@ -120,27 +153,64 @@ export async function submitRegistration(data: z.infer<typeof registerSchema>) {
             age: validated.age || 18,
             experience: validated.experience || "Beginner",
             vibe: validated.vibe || "Fun & Goofy",
-          }
+          },
         })
       }
 
-      let groupMembers: any = undefined;
-      if (validated.passType === PassTypeEnum.GROUP) {
+      let groupMembers: any = undefined
+      if (validated.passType === PassTypeEnum.COUPLE) {
         groupMembers = [
-          { name: validated.member2, passNumber: `${assignedGbn}-B`, memberIndex: 2 },
-          { name: validated.member3, passNumber: `${assignedGbn}-C`, memberIndex: 3 },
-          { name: validated.member4, passNumber: `${assignedGbn}-D`, memberIndex: 4 }
+          {
+            id: `${user.id}_partner`,
+            name: validated.partnerName || "Couple Partner",
+            phone: validated.partnerPhone || validated.phone,
+            passNumber: assignedPasses[1],
+            role: "Couple Partner",
+            memberIndex: 2,
+          },
+        ]
+      } else if (validated.passType === PassTypeEnum.GROUP) {
+        groupMembers = [
+          {
+            id: `${user.id}_m2`,
+            name: validated.member2,
+            passNumber: assignedPasses[1],
+            role: "Squad Member 2",
+            memberIndex: 2,
+          },
+          {
+            id: `${user.id}_m3`,
+            name: validated.member3,
+            passNumber: assignedPasses[2],
+            role: "Squad Member 3",
+            memberIndex: 3,
+          },
+          {
+            id: `${user.id}_m4`,
+            name: validated.member4,
+            passNumber: assignedPasses[3],
+            role: "Squad Member 4",
+            memberIndex: 4,
+          },
         ]
       } else if (validated.passType === PassTypeEnum.GANG) {
-        const letters = ["B", "C", "D", "E", "F", "G", "H", "I", "J"]
         const memberNames = [
-          validated.member2, validated.member3, validated.member4, validated.member5,
-          validated.member6, validated.member7, validated.member8, validated.member9, validated.member10
+          validated.member2,
+          validated.member3,
+          validated.member4,
+          validated.member5,
+          validated.member6,
+          validated.member7,
+          validated.member8,
+          validated.member9,
+          validated.member10,
         ]
         groupMembers = memberNames.map((mName, idx) => ({
+          id: `${user.id}_m${idx + 2}`,
           name: mName,
-          passNumber: `${assignedGbn}-${letters[idx]}`,
-          memberIndex: idx + 2
+          passNumber: assignedPasses[idx + 1],
+          role: `Gang Member ${idx + 2}`,
+          memberIndex: idx + 2,
         }))
       }
 

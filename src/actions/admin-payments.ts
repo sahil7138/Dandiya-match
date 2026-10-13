@@ -53,7 +53,8 @@ export async function approvePayment(
     // Update group members with individual pass numbers if applicable
     let updatedGroupMembers = payment.registration.groupMembers
     if (payment.registration.groupMembers) {
-      const LETTER_SUFFIXES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+      const baseNum = parseInt(targetGbn.replace(/\D/g, "") || "0", 10)
+      const fmt = (n: number) => `GBN-${n.toString().padStart(4, "0")}`
       let members: any[] = []
       if (Array.isArray(payment.registration.groupMembers)) {
         members = payment.registration.groupMembers
@@ -65,11 +66,17 @@ export async function approvePayment(
         }
       }
       if (members.length > 0) {
-        updatedGroupMembers = members.map((m, idx) => ({
-          ...(typeof m === "object" ? m : { name: m }),
-          passNumber: `${targetGbn}-${LETTER_SUFFIXES[idx + 1] || idx + 2}`,
-          memberIndex: idx + 2,
-        }))
+        updatedGroupMembers = members.map((m, idx) => {
+          const rawPass = typeof m === "object" && m?.passNumber ? String(m.passNumber) : ""
+          const hasSuffix = /-[A-Z]$/.test(rawPass)
+          const customPass = rawPass && !hasSuffix ? rawPass : fmt(baseNum > 0 ? baseNum + idx + 1 : idx + 2)
+          return {
+            ...(typeof m === "object" ? m : { name: m }),
+            id: (typeof m === "object" && m?.id) || `${payment.registrationId}_m${idx + 2}`,
+            passNumber: customPass,
+            memberIndex: idx + 2,
+          }
+        })
       }
     }
 

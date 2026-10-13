@@ -253,29 +253,27 @@ export default function PaymentClient({ initialPayments }: { initialPayments: an
                       </Badge>
                     </div>
                     <div className="flex flex-wrap gap-1.5 text-xs font-mono">
-                      <span className="px-2 py-0.5 rounded bg-card border border-primary/30 text-primary font-bold">
-                        {approveGbn}-A (Lead)
-                      </span>
-                      {selectedPayment.registration?.passType === "COUPLE" && (
-                        <span className="px-2 py-0.5 rounded bg-card border border-border text-foreground">
-                          {approveGbn}-B ({selectedPayment.registration?.partnerName || "Partner"})
-                        </span>
-                      )}
-                      {(selectedPayment.registration?.passType === "GROUP" ||
-                        selectedPayment.registration?.passType === "GANG") && (
-                        <>
-                          {Array.from({
-                            length: selectedPayment.registration?.passType === "GROUP" ? 3 : 9,
-                          }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="px-2 py-0.5 rounded bg-card border border-border text-foreground"
-                            >
-                              {approveGbn}-{String.fromCharCode(66 + i)} (Member {i + 2})
+                      {(() => {
+                        const baseNum = parseInt(approveGbn.replace(/\D/g, "") || "0", 10)
+                        const fmt = (n: number) => `GBN-${n.toString().padStart(4, "0")}`
+                        const total = selectedPayment.registration?.passType === "COUPLE" ? 2 : selectedPayment.registration?.passType === "GROUP" ? 4 : 10
+                        
+                        return (
+                          <>
+                            <span className="px-2 py-0.5 rounded bg-card border border-primary/30 text-primary font-bold">
+                              {approveGbn} (Lead)
                             </span>
-                          ))}
-                        </>
-                      )}
+                            {Array.from({ length: total - 1 }).map((_, i) => (
+                              <span
+                                key={i}
+                                className="px-2 py-0.5 rounded bg-card border border-border text-foreground"
+                              >
+                                {fmt(baseNum + i + 1)} (Member {i + 2})
+                              </span>
+                            ))}
+                          </>
+                        )
+                      })()}
                     </div>
                   </div>
                 )}

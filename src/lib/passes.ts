@@ -1,6 +1,7 @@
 import { PassTypeEnum, PaymentStatus } from "@prisma/client"
 
 export interface IndividualPass {
+  id: string
   passNumber: string
   name: string
   phone?: string | null
@@ -11,15 +12,30 @@ export interface IndividualPass {
   paymentStatus: PaymentStatus
   bookingGbn: string
   registrationId: string
+  leadName: string
+  leadPhone: string
   coordinatorPhone?: string | null
 }
 
-const LETTER_SUFFIXES = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+/**
+ * Parses numeric part from a GBN pass number (e.g. "GBN-0005" -> 5)
+ */
+function parseGbnDigits(gbn: string): number {
+  const digits = gbn.replace(/\D/g, "")
+  return digits ? parseInt(digits, 10) : 0
+}
+
+/**
+ * Formats a number to GBN format (e.g. 6 -> "GBN-0006")
+ */
+function formatGbn(num: number): string {
+  return `GBN-${num.toString().padStart(4, "0")}`
+}
 
 /**
  * Extracts and generates individual passes for every member of a registration.
  * Handles SINGLE (1), COUPLE (2), GROUP (4), and GANG (10).
- * Works seamlessly with existing and newly submitted registrations.
+ * Every attendee gets their own separate ID and different GBN pass (no letter suffixes A, B, C, D).
  */
 export function getIndividualPasses(reg: {
   id: string
@@ -36,30 +52,48 @@ export function getIndividualPasses(reg: {
   }
 }): IndividualPass[] {
   const baseGbn = reg.gbnNumber
+  const baseNum = parseGbnDigits(baseGbn)
   const passes: IndividualPass[] = []
 
   // 1. SINGLE PASS (1 attendee)
   if (reg.passType === "SINGLE") {
     passes.push({
+      id: reg.id,
       passNumber: baseGbn,
       name: reg.user.name,
       phone: reg.user.phone,
-      role: "Solo Attendee (Lead)",
+      role: "Solo Attendee",
       isLead: true,
       memberIndex: 1,
       passType: reg.passType,
       paymentStatus: reg.paymentStatus,
       bookingGbn: baseGbn,
       registrationId: reg.id,
+      leadName: reg.user.name,
+      leadPhone: reg.user.phone,
       coordinatorPhone: reg.coordinatorPhone,
     })
     return passes
   }
 
+  // Parse raw members array if present
+  let rawMembers: any[] = []
+  if (Array.isArray(reg.groupMembers)) {
+    rawMembers = reg.groupMembers
+  } else if (typeof reg.groupMembers === "string") {
+    try {
+      rawMembers = JSON.parse(reg.groupMembers)
+    } catch {
+      rawMembers = []
+    }
+  }
+
   // 2. COUPLE PASS (2 attendees: Lead & Partner)
   if (reg.passType === "COUPLE") {
+    // Lead
     passes.push({
-      passNumber: `${baseGbn}-A`,
+      id: reg.id,
+      passNumber: baseGbn,
       name: reg.user.name,
       phone: reg.user.phone,
       role: "Couple Lead (Payer)",
@@ -69,13 +103,26 @@ export function getIndividualPasses(reg: {
       paymentStatus: reg.paymentStatus,
       bookingGbn: baseGbn,
       registrationId: reg.id,
+      leadName: reg.user.name,
+      leadPhone: reg.user.phone,
       coordinatorPhone: reg.coordinatorPhone,
     })
 
+    // Partner
+    const partnerData = rawMembers[0]
+    let partnerPass = ""
+    if (typeof partnerData === "object" && partnerData?.passNumber) {
+      partnerPass = partnerData.passNumber.replace(/-[A-Z]$/, "")
+    }
+    if (!partnerPass) {
+      partnerPass = formatGbn(baseNum > 0 ? baseNum + 1 : 2)
+    }
+
     passes.push({
-      passNumber: `${baseGbn}-B`,
-      name: reg.partnerName || "Couple Partner",
-      phone: reg.partnerPhone || reg.user.phone,
+      id: (typeof partnerData === "object" && partnerData?.id) || `${reg.id}_m2`,
+      passNumber: partnerPass,
+      name: reg.partnerName || (typeof partnerData === "object" && partnerData?.name) || "Couple Partner",
+      phone: reg.partnerPhone || (typeof partnerData === "object" && partnerData?.phone) || reg.user.phone,
       role: "Couple Partner",
       isLead: false,
       memberIndex: 2,
@@ -83,6 +130,8 @@ export function getIndividualPasses(reg: {
       paymentStatus: reg.paymentStatus,
       bookingGbn: baseGbn,
       registrationId: reg.id,
+      leadName: reg.user.name,
+      leadPhone: reg.user.phone,
       coordinatorPhone: reg.coordinatorPhone,
     })
 
@@ -95,7 +144,8 @@ export function getIndividualPasses(reg: {
 
   // Lead / Primary Payer
   passes.push({
-    passNumber: `${baseGbn}-A`,
+    id: reg.id,
+    passNumber: baseGbn,
     name: reg.user.name,
     phone: reg.user.phone,
     role: `${groupLabel} Lead (Payer)`,
@@ -105,20 +155,10 @@ export function getIndividualPasses(reg: {
     paymentStatus: reg.paymentStatus,
     bookingGbn: baseGbn,
     registrationId: reg.id,
+    leadName: reg.user.name,
+    leadPhone: reg.user.phone,
     coordinatorPhone: reg.coordinatorPhone,
   })
-
-  // Parse group members array
-  let rawMembers: any[] = []
-  if (Array.isArray(reg.groupMembers)) {
-    rawMembers = reg.groupMembers
-  } else if (typeof reg.groupMembers === "string") {
-    try {
-      rawMembers = JSON.parse(reg.groupMembers)
-    } catch {
-      rawMembers = []
-    }
-  }
 
   for (let i = 2; i <= totalExpected; i++) {
     const memberData = rawMembers[i - 2]
@@ -127,11 +167,25 @@ export function getIndividualPasses(reg: {
       `${groupLabel} Member ${i}`
     const memberPhone =
       (typeof memberData === "object" ? memberData?.phone : null) || reg.user.phone
-    const customPass =
-      (typeof memberData === "object" && memberData?.passNumber) ||
-      `${baseGbn}-${LETTER_SUFFIXES[i - 1] || i}`
+
+    let customPass = ""
+    if (typeof memberData === "object" && memberData?.passNumber) {
+      // Remove any legacy -A, -B, etc.
+      const raw = memberData.passNumber
+      customPass = raw.includes("-") && /[A-Z]$/.test(raw)
+        ? formatGbn(baseNum > 0 ? baseNum + (i - 1) : i)
+        : raw
+    }
+    if (!customPass) {
+      customPass = formatGbn(baseNum > 0 ? baseNum + (i - 1) : i)
+    }
+
+    const memberId =
+      (typeof memberData === "object" && memberData?.id) ||
+      `${reg.id}_m${i}`
 
     passes.push({
+      id: memberId,
       passNumber: customPass,
       name: memberName,
       phone: memberPhone,
@@ -142,6 +196,8 @@ export function getIndividualPasses(reg: {
       paymentStatus: reg.paymentStatus,
       bookingGbn: baseGbn,
       registrationId: reg.id,
+      leadName: reg.user.name,
+      leadPhone: reg.user.phone,
       coordinatorPhone: reg.coordinatorPhone,
     })
   }

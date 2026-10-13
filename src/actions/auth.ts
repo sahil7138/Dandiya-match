@@ -134,7 +134,25 @@ export async function loginUser(
     const inputUpper = passNumber.trim().toUpperCase()
     const inputBase = inputUpper.replace(/-[A-Z0-9]+$/, "")
 
+    // Check if input matches base GBN or any group member's distinct pass number
+    let memberPassMatch = false
+    if (user.registration.groupMembers) {
+      let members: any[] = []
+      if (Array.isArray(user.registration.groupMembers)) {
+        members = user.registration.groupMembers
+      } else if (typeof user.registration.groupMembers === "string") {
+        try {
+          members = JSON.parse(user.registration.groupMembers)
+        } catch {}
+      }
+      memberPassMatch = members.some((m: any) => {
+        const mPass = String(m?.passNumber || "").trim().toUpperCase()
+        return mPass && (mPass === inputUpper || mPass === canonical)
+      })
+    }
+
     const isMatch =
+      memberPassMatch ||
       userGbn === canonical ||
       userGbn === inputUpper ||
       userGbn === inputBase ||
