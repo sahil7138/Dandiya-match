@@ -21,11 +21,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (e) e.preventDefault()
     setIsLoggingOut(true)
     try {
-      await fetch("/api/admin/logout", { method: "POST" })
+      await fetch("/api/admin/logout", { 
+        method: "POST",
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" }
+      })
     } catch (err) {
       console.error("Logout error:", err)
     }
-    window.location.href = "/admin/login"
+    window.location.replace("/admin/login")
   }
   
   const navItems = [
@@ -89,20 +93,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Button>
           }
         />
-        <Button
-          type="button"
+        <a
+          href="/api/admin/logout"
           onClick={handleLogout}
-          disabled={isLoggingOut}
-          variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 cursor-pointer h-9 px-3 text-xs"
+          className="w-full flex items-center justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors h-9 px-3 text-xs rounded-lg cursor-pointer"
         >
           {isLoggingOut ? (
-            <Loader2 className="mr-3 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-3 h-4 w-4 animate-spin text-red-500" />
           ) : (
             <LogOut className="mr-3 h-4 w-4" />
           )}
           {isLoggingOut ? "Logging out..." : "Logout"}
-        </Button>
+        </a>
       </div>
     </>
   )
@@ -156,21 +158,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </span>
             </div>
             <ChangePasswordModal />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
+            <a
+              href="/api/admin/logout"
               onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="text-xs gap-1.5 text-muted-foreground hover:text-red-500 hover:border-red-500/30 cursor-pointer h-8 px-2.5"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-500 hover:border-red-500/30 border border-input rounded-lg h-8 px-2.5 transition-colors cursor-pointer"
             >
               {isLoggingOut ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-red-500" />
               ) : (
                 <LogOut className="h-3.5 w-3.5" />
               )}
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
+              <span className="hidden sm:inline">{isLoggingOut ? "Logging out..." : "Logout"}</span>
+            </a>
           </div>
         </header>
 

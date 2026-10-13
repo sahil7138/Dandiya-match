@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
 export const dynamic = "force-dynamic"
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const cookieStore = await cookies()
   cookieStore.set("admin_session", "", {
     httpOnly: true,
@@ -15,10 +15,21 @@ export async function POST() {
   })
   cookieStore.delete("admin_session")
 
-  return NextResponse.json({ success: true, message: "Logged out successfully" })
+  const response = NextResponse.json({ success: true, message: "Logged out successfully" })
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+  response.cookies.set("admin_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    expires: new Date(0),
+    sameSite: "lax",
+    path: "/",
+  })
+  response.cookies.delete("admin_session")
+  return response
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const cookieStore = await cookies()
   cookieStore.set("admin_session", "", {
     httpOnly: true,
@@ -30,5 +41,17 @@ export async function GET() {
   })
   cookieStore.delete("admin_session")
 
-  return NextResponse.redirect(new URL("/admin/login", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"))
+  const loginUrl = new URL("/admin/login", req.url)
+  const response = NextResponse.redirect(loginUrl)
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+  response.cookies.set("admin_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    expires: new Date(0),
+    sameSite: "lax",
+    path: "/",
+  })
+  response.cookies.delete("admin_session")
+  return response
 }

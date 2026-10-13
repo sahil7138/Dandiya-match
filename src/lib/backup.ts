@@ -20,7 +20,9 @@ export interface BackupSummary {
   checksum: string
 }
 
-const BACKUP_DIR = path.join(process.cwd(), "backups")
+const BACKUP_DIR = (process.env.VERCEL || process.env.NODE_ENV === "production")
+  ? path.join("/tmp", "backups")
+  : path.join(process.cwd(), "backups")
 
 async function ensureBackupDir() {
   try {
